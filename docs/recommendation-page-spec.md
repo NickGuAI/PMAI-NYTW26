@@ -12,7 +12,7 @@ The reusable page template is committed at repo root:
 recommendation.html
 ```
 
-It should use a light, high-contrast interface with floating cards: bright map surface, white event cards, strong text contrast, restrained accent color, and compact cards built for scanning.
+It should use the local Sumi-e design system from `/home/ec2-user/App/docs/design-systems/sumi-e/`: warm paper surfaces, ink-density hierarchy, asymmetric cards, Cormorant Garamond headings, Source Sans 3 body copy, and restrained vermillion/moss accents. Keep the page simple: one recommendation per card, with enough metadata to scan quickly.
 
 ## Layout
 
@@ -21,8 +21,8 @@ Desktop:
 ```text
 ┌──────────────────────────────┬────────────────────────────────────┐
 │ Map pane                     │ Ranked recommendations             │
-│ - NYC borough boundaries     │ - Query summary                    │
-│ - Event pins when verified   │ - Preference assumptions           │
+│ - Leaflet street map         │ - Query summary                    │
+│ - Event pins                 │ - Preference assumptions           │
 │ - Selected event highlight   │ - Ranked event cards               │
 │                              │ - Data/source caveats              │
 └──────────────────────────────┴────────────────────────────────────┘
@@ -55,6 +55,8 @@ The page should load the current run by default and support:
 
 ## Recommendation Card Fields
 
+Each event must be rendered as its own card. Do not compress the list into tables or dense rows.
+
 Each event card should show:
 
 - Rank and final score.
@@ -72,11 +74,13 @@ Each event card should show:
 
 The left pane should:
 
-- Render `data/maps/nyc-borough-boundaries.geojson` as the base layer.
+- Use a real interactive map engine with pan and zoom, currently Leaflet with CARTO/OpenStreetMap light tiles.
 - Render event pins when the recommendation record has verified coordinates or the source location matches the built-in NYC neighborhood/landmark lookup.
 - If coordinates are missing, place the event using a clearly approximate NYC neighborhood or landmark center when the source location can be matched, and include the Google Maps search link for exact venue navigation.
 - Highlight a map pin when the matching event card is selected.
 - Avoid presenting approximate pins as exact venue coordinates.
+
+Do not replace the interactive map with a static SVG, flat image, or borough-outline-only drawing. The map must preserve zoom, pan, visible geography, and recognizable event placement.
 
 Current PMAI-NYTW26 event records contain location labels, not verified lat/lon coordinates. Therefore the recommendation HTML uses exact coordinates when a run provides them, otherwise it uses a small built-in NYC neighborhood/landmark lookup for approximate orientation.
 
@@ -123,7 +127,8 @@ Keep the page template and run data separate:
 
 Do not write the final viewable `recommendation.html` inside `.cache`. If a user explicitly asks for a single-file snapshot, write `recommendation-<run-id>.html` at repo root and warn before embedding private preference/profile data.
 
-The root template must let users switch between:
+The root template must:
 
 - Top picks: compact default view.
 - Full ranked list: every recommendation in `recommendations.json`.
+- Load data from the current cache, a run-specific cache path, a custom JSON path, embedded `window.NYTW26_RECOMMENDATIONS`, or manual JSON upload.

@@ -220,13 +220,16 @@ Produce three outputs:
 
 The committed root `recommendation.html` page must use:
 
-- New York map on the left.
-- Ranked event cards on the right.
-- Light theme with floating, high-contrast cards.
+- New York map on the left using a real interactive map engine with pan, zoom, visible geography, and event markers. The current template uses Leaflet with CARTO/OpenStreetMap light tiles.
+- Ranked event cards on the right, one event per card.
+- The Sumi-e design system in `/home/ec2-user/App/docs/design-systems/sumi-e/`: warm paper surfaces, ink-density hierarchy, asymmetric cards, Cormorant Garamond headings, Source Sans 3 body copy, and restrained accents.
 - A "Top picks" view and a "Full ranked list" view so users can inspect all ranked candidates, not only the top recommendations.
 - Event title, date, time, host, location, tracks, score, reasons, caveats, and event link.
 - Google Maps search link for each event location.
 - Source and data-quality note in the footer.
+- Data loading from `.cache/nytw26-event-recommender/current/recommendations.json`, `?run=<run-id>`, `?data=<path>`, embedded `window.NYTW26_RECOMMENDATIONS`, or manual JSON upload.
+
+Do not replace the map with a static SVG, flat image, or borough-outline-only drawing. A static drawing fails the page contract because users cannot pan, zoom, or understand event placement against streets and neighborhoods.
 
 Google Maps search link format:
 
@@ -291,6 +294,8 @@ If the user explicitly asks for a single-file snapshot, write it as `recommendat
 - Source-backed `tracks` are distinguished from derived `inferred_categories`.
 - The HTML page has a left map area and right ranked-event area.
 - The HTML page lets the user switch between top picks and the full ranked list.
+- The HTML page follows the Sumi-e design system and renders each event as a simplified card.
+- The HTML page uses an interactive map with pan/zoom and visible event markers.
 - Map pins are shown from exact coordinates when available or clearly approximate NYC neighborhood/landmark centers when coordinates are absent.
 - Google Maps search links are included for exact event-location navigation.
 - Missing descriptions or calendar fallback URLs are marked as caveats, not hidden.

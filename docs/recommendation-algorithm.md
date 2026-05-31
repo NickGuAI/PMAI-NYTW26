@@ -196,7 +196,7 @@ Return both machine-readable and human-readable output:
 
 - `runs/<run-id>/recommendations.json`: ranked events with score components, reasons, caveats, map fields, and cache metadata.
 - `.cache/nytw26-event-recommender/current/recommendations.json`: latest-run pointer for the root page template.
-- `recommendation.html`: committed root template with a New York map on the left, ranked events on the right, floating light-theme cards, event-location markers, and a top-picks/full-list toggle.
+- `recommendation.html`: committed root template with a New York map on the left, ranked events on the right, Sumi-e light-theme event cards, event-location markers, and a top-picks/full-list toggle.
 - Plain-text summary with the top recommendations and repo/source caveats.
 
 Each recommendation should include:
@@ -211,10 +211,12 @@ Each recommendation should include:
 
 The page should show:
 
-- NYC borough boundary layer as a lightweight orientation layer.
+- A real interactive Leaflet map with CARTO/OpenStreetMap light tiles so users can pan, zoom, and orient events against recognizable geography.
 - Event pins where latitude/longitude exists.
 - For events without coordinates, use a clearly approximate NYC neighborhood/landmark center when the source location can be matched.
 - Google Maps search links for exact venue navigation.
+
+Do not replace the map with a static SVG or image. Static maps fail the recommendation UI because they cannot support zoom, pan, or event-location exploration.
 
 Google Maps search URL format:
 
