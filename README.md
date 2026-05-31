@@ -69,9 +69,15 @@ data/
   keyword-index.json        # event ID -> keywords and ranking hints
   ingestion-report.json     # source/run summary
   description-failures.json # unresolved descriptions and fallback status
+  maps/
+    README.md
+    nyc-borough-boundaries.geojson
+    source-manifest.json
 
 docs/
   ingestion-notes.md        # source/fetch notes and known gaps
+  recommendation-algorithm.md
+  recommendation-page-spec.md
 
 skills/
   nytw26-event-query/
@@ -137,6 +143,7 @@ Pioneering Minds AI is using this index as a community utility for New York Tech
 The repo now includes a recommendation design memo and a recommender skill:
 
 - `docs/recommendation-algorithm.md`
+- `docs/recommendation-page-spec.md`
 - `skills/nytw26-event-recommender/SKILL.md`
 
-The recommendation flow is broad retrieval to roughly 100 candidates, 10-event batch ranking, ensemble reassembly, and a ranked HTML result page with a New York map on the left and event recommendations on the right. Personal preference profiles should stay local/private unless a user explicitly asks to publish them.
+The recommendation flow is broad retrieval to roughly 100 candidates, 10-event batch ranking, ensemble reassembly, and a ranked HTML result page with a New York map on the left and event recommendations on the right. The repo stores a lightweight NYC borough boundary GeoJSON for the map background and links out to Google Maps searches for event locations unless verified coordinates are added later. Personal preference profiles should stay local/private unless a user explicitly asks to publish them.
