@@ -23,5 +23,9 @@
   "description_failures_path": "data/description-failures.json",
   "tavily_fallback_attempted": 12,
   "tavily_fallback_recovered": 0,
-  "tavily_fallback_error": "Tavily extract is unavailable in this runtime: usage limit exceeded (status 432)."
+  "tavily_fallback_error": "Tavily extract is unavailable in this runtime: usage limit exceeded (status 432).",
+  "events_without_external_url": 164,
+  "calendar_fallback_event_urls": 164,
+  "events_missing_location_from_tech_week": 4,
+  "location_fallbacks_from_external_page": 4
 }

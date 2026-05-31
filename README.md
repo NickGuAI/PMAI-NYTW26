@@ -7,7 +7,14 @@ This repo is designed so a human or agent can quickly search New York Tech Week 
 - **City:** New York City
 - **Source:** https://www.tech-week.com/calendar/nyc
 - **Dates:** 2026-06-01 through 2026-06-07
-- **Status:** repo skeleton ready; event ingestion pending
+- **Status:** event data and keyword index published
+
+Current snapshot:
+
+- **Events indexed:** 1,602 events in the June 1-7 window
+- **Descriptions fetched directly:** 1,426
+- **Unavailable descriptions:** 176, all recorded in `data/description-failures.json`
+- **Tavily fallback:** attempted for 12 URL-level failures, but the connected Tavily account is currently over plan limit
 
 ## What This Repo Will Contain
 
@@ -19,14 +26,17 @@ Required fields:
 | --- | --- |
 | `id` | Stable local event ID |
 | `title` | Event title |
-| `event_url` | Tech Week event URL |
+| `event_url` | Best actionable event URL: linked external page when available, otherwise Tech Week calendar fallback |
+| `event_url_kind` | `external` or `tech_week_calendar_fallback` |
 | `external_url` | Linked event page, such as Partiful, if available |
+| `source_event_url` | Tech Week calendar URL with event ID |
 | `date` | Local event date |
 | `start_time` | Local event start time |
 | `end_time` | Local event end time, if available |
 | `timezone` | Expected to be America/New_York unless source says otherwise |
 | `host` | Host or organizer |
 | `location` | Venue/address or virtual location |
+| `location_source` | `tech_week`, `external_page`, or `unavailable` |
 | `tracks` | Tech Week track labels |
 | `description` | Event description fetched from the linked event page |
 | `description_source` | `direct_fetch`, `tavily_fallback`, or `unavailable` |
@@ -53,9 +63,12 @@ These categories should be treated as filters and ranking signals, not as the on
 ```text
 data/
   README.md
-  events.jsonl              # one event per line, pending ingestion
+  events.jsonl              # one event per line
+  events.json               # full pretty-printed event array
   events.schema.json        # machine-readable field contract
-  keyword-index.json        # event ID -> keywords, pending ingestion
+  keyword-index.json        # event ID -> keywords and ranking hints
+  ingestion-report.json     # source/run summary
+  description-failures.json # unresolved descriptions and fallback status
 
 docs/
   ingestion-notes.md        # source/fetch notes and known gaps
@@ -75,6 +88,8 @@ Example prompts:
 - "What should a student attend if they want hackathons and recruiting?"
 - "Show investor-facing fintech events with the event link and location."
 - "Build me a June 4 evening plan near downtown Manhattan."
+- "Find founder/investor breakfasts where the host looks relevant to AI startups."
+- "Give me three GTM events and explain why each one matches a B2B founder."
 
 Expected answer shape:
 
@@ -102,7 +117,14 @@ For each event:
 6. Record the method in `description_source`.
 7. Do not silently drop events with missing descriptions; mark them as `unavailable`.
 
+## Known Gaps
+
+- Tech Week's API reports 1,605 NYC events. The normalized index includes 1,602 events dated 2026-06-01 through 2026-06-07; three API records were outside the requested date window.
+- 164 events do not expose an external event URL in the Tech Week API, so `event_url` falls back to the Tech Week calendar and no linked page was available for description fetching.
+- Four events did not expose a location in the Tech Week API; the index uses linked-page location fallback where available and otherwise marks the location status directly.
+- 12 linked pages failed direct fetch; Tavily fallback was attempted but blocked by plan usage limit. Those records are marked in the data.
+- `tracks` are source-backed Tech Week curated track memberships. `inferred_categories` are high-confidence derived hints from source tracks plus title, host, and location signals.
+
 ## PMAI Context
 
 Pioneering Minds AI is using this index as a community utility for New York Tech Week 2026 and as source material for a June 1 newsletter. The repo should stay useful as a standalone public artifact: future readers should not need private PMAI context to query the events.
-

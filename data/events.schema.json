@@ -6,6 +6,7 @@
     "id",
     "title",
     "event_url",
+    "event_url_kind",
     "date",
     "start_time",
     "timezone",
@@ -15,6 +16,7 @@
     "description",
     "description_source",
     "keywords",
+    "source_event_url",
     "source_checked_at"
   ],
   "properties": {
@@ -29,8 +31,16 @@
       "type": "string",
       "format": "uri"
     },
+    "event_url_kind": {
+      "type": "string",
+      "enum": ["external", "tech_week_calendar_fallback"]
+    },
     "external_url": {
       "type": ["string", "null"],
+      "format": "uri"
+    },
+    "source_event_url": {
+      "type": "string",
       "format": "uri"
     },
     "date": {
@@ -51,6 +61,10 @@
     },
     "location": {
       "type": "string"
+    },
+    "location_source": {
+      "type": "string",
+      "enum": ["tech_week", "external_page", "unavailable"]
     },
     "tracks": {
       "type": "array",
@@ -85,6 +99,23 @@
       "type": "array",
       "items": {
         "type": "string"
+      }
+    },
+    "inferred_categories": {
+      "type": "array",
+      "description": "High-confidence derived category hints from source tracks plus title, host, and location signals. Not source-backed track membership.",
+      "items": {
+        "type": "string",
+        "enum": [
+          "AI + Infra",
+          "Hackathons",
+          "Fintech",
+          "Students",
+          "Engineers",
+          "Founders",
+          "GTM",
+          "Investors"
+        ]
       }
     },
     "source_checked_at": {

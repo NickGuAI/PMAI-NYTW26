@@ -37,7 +37,9 @@ Source order used:
 
 Notes:
 
-- Event URLs are the linked external event URLs exposed by the Tech Week calendar.
+- `event_url` is the linked external event URL when Tech Week exposes one; otherwise it falls back to a Tech Week calendar URL with the event ID.
+- `external_url` stays null when the Tech Week API does not expose a linked registration/event page.
+- `location_source` records whether a location came from Tech Week, the linked event page, or could not be recovered.
 - Times are local New York event times and stored with timezone `America/New_York`.
 - Track membership is based on Tech Week curated track filters.
 

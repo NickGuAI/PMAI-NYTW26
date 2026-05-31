@@ -118,6 +118,29 @@ function firstMetaContent(html, names) {
   return "";
 }
 
+function cleanLocation(value) {
+  const cleaned = decodeHtml(value)
+    .replace(/\\n/g, ", ")
+    .replace(/\s+/g, " ")
+    .replace(/\s*,\s*/g, ", ")
+    .trim();
+  if (!cleaned) return "";
+  if (/^hidden$/i.test(cleaned)) return "Location hidden";
+  return cleaned;
+}
+
+function firstLocationContent(html) {
+  const locations = [...html.matchAll(/"location"\s*:\s*"([^"]{2,200})"/gi)]
+    .map((match) => cleanLocation(match[1]))
+    .filter(Boolean);
+  const addresses = [...html.matchAll(/"address"\s*:\s*"([^"]{2,200})"/gi)]
+    .map((match) => cleanLocation(match[1]))
+    .filter(Boolean);
+  const location = locations.find((value) => !/^Location hidden$/i.test(value)) || locations[0] || "";
+  const address = addresses.find((value) => value !== location) || "";
+  return [location, address].filter(Boolean).join(", ");
+}
+
 async function fetchDescription(url) {
   if (!url) {
     return {
@@ -125,6 +148,8 @@ async function fetchDescription(url) {
       description_source: "unavailable",
       description_source_url: null,
       description_fetch_error: "Missing external URL",
+      location: "",
+      location_source: null,
     };
   }
 
@@ -141,6 +166,7 @@ async function fetchDescription(url) {
       throw new Error(`HTTP ${response.status} ${response.statusText}`);
     }
     const html = await response.text();
+    const location = firstLocationContent(html);
     const description = firstMetaContent(html, [
       "og:description",
       "description",
@@ -152,6 +178,8 @@ async function fetchDescription(url) {
         description_source: "unavailable",
         description_source_url: response.url || url,
         description_fetch_error: "Direct fetch succeeded but no description meta tag was found",
+        location,
+        location_source: location ? "external_page" : null,
       };
     }
     return {
@@ -159,6 +187,8 @@ async function fetchDescription(url) {
       description_source: "direct_fetch",
       description_source_url: response.url || url,
       description_fetch_error: null,
+      location,
+      location_source: location ? "external_page" : null,
     };
   } catch (error) {
     return {
@@ -166,6 +196,8 @@ async function fetchDescription(url) {
       description_source: "unavailable",
       description_source_url: url,
       description_fetch_error: error instanceof Error ? error.message : String(error),
+      location: "",
+      location_source: null,
     };
   }
 }
@@ -200,14 +232,18 @@ function isoTime(date, time) {
 
 function normalizeEvent(event, tracks, descriptionResult, checkedAt) {
   const hosts = hostLabels(event);
+  const sourceEventUrl = `${CALENDAR_URL}?event=${event.id}`;
+  const location = event.location || descriptionResult.location || "TBD";
   return {
     id: `techweek-nyc-2026-${event.id}`,
     tech_week_id: event.id,
     city: event.city,
     title: event.name,
-    event_url: event.externalHref,
+    event_url: event.externalHref || sourceEventUrl,
+    event_url_kind: event.externalHref ? "external" : "tech_week_calendar_fallback",
     external_url: event.externalHref,
     source_calendar_url: CALENDAR_URL,
+    source_event_url: sourceEventUrl,
     date: event.date,
     start_time: event.time,
     start_datetime_local: isoTime(event.date, event.time),
@@ -215,7 +251,8 @@ function normalizeEvent(event, tracks, descriptionResult, checkedAt) {
     timezone: TIMEZONE,
     host: hosts.join(", "),
     hosts,
-    location: event.location,
+    location,
+    location_source: event.location ? "tech_week" : (descriptionResult.location_source || "unavailable"),
     tracks,
     is_invite_only: Boolean(event.isInviteOnly),
     sponsor_tier: event.sponsorTier ?? null,
@@ -259,6 +296,9 @@ async function main() {
   );
 
   const failures = normalized.filter((event) => event.description_source !== "direct_fetch");
+  const eventsWithoutExternalUrl = normalized.filter((event) => !event.external_url).length;
+  const eventsMissingTechWeekLocation = rawEvents.filter((event) => !event.location).length;
+  const locationFallbacks = normalized.filter((event) => event.location_source === "external_page").length;
   const eventsJsonl = normalized.map((event) => JSON.stringify(event)).join("\n") + "\n";
   const eventsJson = JSON.stringify(normalized, null, 2) + "\n";
   const rawJson = JSON.stringify(rawEvents, null, 2) + "\n";
@@ -273,6 +313,10 @@ async function main() {
     track_counts: trackCounts,
     direct_fetch_descriptions: normalized.length - failures.length,
     unavailable_descriptions: failures.length,
+    events_without_external_url: eventsWithoutExternalUrl,
+    calendar_fallback_event_urls: eventsWithoutExternalUrl,
+    events_missing_location_from_tech_week: eventsMissingTechWeekLocation,
+    location_fallbacks_from_external_page: locationFallbacks,
     description_failures_path: "data/description-failures.json",
   };
 
@@ -314,7 +358,8 @@ Source order used:
 
 Notes:
 
-- Event URLs are the linked external event URLs exposed by the Tech Week calendar.
+- \`event_url\` is the linked external event URL when Tech Week exposes one; otherwise it falls back to a Tech Week calendar URL with the event ID.
+- \`external_url\` stays null when the Tech Week API does not expose a linked registration/event page.
 - Times are local New York event times and stored with timezone \`${TIMEZONE}\`.
 - Track membership is based on Tech Week curated track filters.
 `;

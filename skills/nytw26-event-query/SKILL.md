@@ -25,12 +25,14 @@ If `events.jsonl` is missing or empty, say that event ingestion has not been com
    - `host`
    - `location`
    - `tracks`
+   - `inferred_categories`
    - `description`
    - `keywords`
 3. Treat tracks as strong ranking signals.
-4. Treat keywords as recall aids, not as the only evidence.
-5. Prefer events with complete time, host, location, and source link.
-6. Always include the event URL in recommendations.
+4. Treat `inferred_categories` as broad hints, not source-backed track membership.
+5. Treat keywords as recall aids, not as the only evidence.
+6. Prefer events with complete time, host, location, and source link.
+7. Always include the event URL in recommendations.
 
 ## Track Categories
 
@@ -63,7 +65,19 @@ Recommended events
 
 If the user asks for a plan, group by date and time. If they ask for search results, sort by match quality first, then time.
 
+## Search Examples
+
+- "Find AI infrastructure events for technical founders from June 1 to June 3."
+- "What should a student attend if they want hackathons and recruiting?"
+- "Show investor-facing fintech events with the event link and location."
+- "Build me a June 4 evening plan near downtown Manhattan."
+- "Give me three GTM events and explain why each one matches a B2B founder."
+
 ## Drift Check
 
 Before answering, verify that the loaded data covers the user's requested date range. If the user asks outside 2026-06-01 through 2026-06-07, say the repo only targets that initial New York Tech Week window unless the data has been expanded.
 
+Also distinguish source-backed fields from inferred fields:
+
+- Source-backed: `title`, `date`, `start_time`, `host`, `location`, `tracks`, `event_url`.
+- Derived: `keywords`, `inferred_categories`.
