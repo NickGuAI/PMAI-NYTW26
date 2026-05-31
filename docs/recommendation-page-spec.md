@@ -12,7 +12,7 @@ The reusable page template is committed at repo root:
 recommendation.html
 ```
 
-It should use PMAI's Sumi-e design language in a dark theme: quiet charcoal surfaces, rice-paper contrast, restrained gold accents, and compact event cards built for scanning.
+It should use a light, high-contrast interface with floating cards: bright map surface, white event cards, strong text contrast, restrained accent color, and compact cards built for scanning.
 
 ## Layout
 
@@ -73,12 +73,12 @@ Each event card should show:
 The left pane should:
 
 - Render `data/maps/nyc-borough-boundaries.geojson` as the base layer.
-- Render event pins only when the recommendation record has verified coordinates.
-- If coordinates are missing, keep the event in the right pane and include the Google Maps search link.
+- Render event pins when the recommendation record has verified coordinates or the source location matches the built-in NYC neighborhood/landmark lookup.
+- If coordinates are missing, place the event using a clearly approximate NYC neighborhood or landmark center when the source location can be matched, and include the Google Maps search link for exact venue navigation.
 - Highlight a map pin when the matching event card is selected.
-- Avoid geocoding or coordinate guessing inside the page.
+- Avoid presenting approximate pins as exact venue coordinates.
 
-Current PMAI-NYTW26 event records contain location labels, not verified lat/lon coordinates. Therefore the first version of recommendation HTML should rely primarily on the borough boundary map plus Google Maps search links.
+Current PMAI-NYTW26 event records contain location labels, not verified lat/lon coordinates. Therefore the recommendation HTML uses exact coordinates when a run provides them, otherwise it uses a small built-in NYC neighborhood/landmark lookup for approximate orientation.
 
 ## Google Maps Link
 
@@ -110,7 +110,7 @@ The page footer must include:
 - Source repo: `https://github.com/NickGuAI/PMAI-NYTW26`
 - Event source: `https://www.tech-week.com/calendar/nyc`
 - Map source: NYC Department of City Planning / NYC Open Data Borough Boundaries.
-- Data caveat: event locations are source labels unless future records include verified coordinates.
+- Data caveat: pins are exact only when run data provides coordinates; otherwise they are approximate neighborhood/landmark markers.
 
 ## Output Contract
 

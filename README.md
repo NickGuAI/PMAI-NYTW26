@@ -79,7 +79,7 @@ docs/
   recommendation-algorithm.md
   recommendation-page-spec.md
 
-recommendation.html          # reusable Sumi-e dark-theme recommender result page
+recommendation.html          # reusable light-theme recommender result page
 
 skills/
   nytw26-event-query/
@@ -148,6 +148,6 @@ The repo now includes a recommendation design memo and a recommender skill:
 - `docs/recommendation-page-spec.md`
 - `skills/nytw26-event-recommender/SKILL.md`
 
-The recommendation flow is broad retrieval to roughly 100 candidates, 10-event batch ranking, ensemble reassembly, and a ranked HTML result page with a New York map on the left and event recommendations on the right. The repo stores a lightweight NYC borough boundary GeoJSON for the map background and links out to Google Maps searches for event locations unless verified coordinates are added later. Personal preference profiles should stay local/private unless a user explicitly asks to publish them.
+The recommendation flow is broad retrieval to roughly 100 candidates, 10-event batch ranking, ensemble reassembly, and a ranked HTML result page with a New York map on the left and event recommendations on the right. The repo stores a lightweight NYC borough boundary GeoJSON for the map background, renders event-location markers from exact coordinates when present or approximate neighborhood/landmark centers when coordinates are absent, and links out to Google Maps for exact venue navigation. Personal preference profiles should stay local/private unless a user explicitly asks to publish them.
 
-`recommendation.html` is the reusable Sumi-e dark-theme result template at repo root. Recommender runs should write JSON under `.cache/nytw26-event-recommender/` and update `.cache/nytw26-event-recommender/current/recommendations.json`; the page can then show top picks or the full ranked list from that cached run data.
+`recommendation.html` is the reusable light-theme result template at repo root. Recommender runs should write JSON under `.cache/nytw26-event-recommender/` and update `.cache/nytw26-event-recommender/current/recommendations.json`; the page can then show top picks or the full ranked list from that cached run data.

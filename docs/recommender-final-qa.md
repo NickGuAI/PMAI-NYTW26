@@ -44,7 +44,7 @@ Run date: 2026-05-31
 
 - Map layer stored in repo: NYC Borough Boundaries from NYC Department of City Planning via NYC Open Data.
 - DCM referenced but not mirrored: full Digital City Map data is heavier street-map data and changes often, so it is linked as source material rather than copied into this event-index repo.
-- Current event data has location labels, not verified latitude/longitude. The first recommendation page should use borough boundaries plus Google Maps search links unless verified coordinates are added later.
+- Current event data has location labels, not verified latitude/longitude. The recommendation page uses exact run coordinates when available and otherwise uses approximate NYC neighborhood/landmark markers plus Google Maps links.
 
 ## Drift Detection
 

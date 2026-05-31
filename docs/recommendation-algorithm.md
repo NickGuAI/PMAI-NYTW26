@@ -196,7 +196,7 @@ Return both machine-readable and human-readable output:
 
 - `runs/<run-id>/recommendations.json`: ranked events with score components, reasons, caveats, map fields, and cache metadata.
 - `.cache/nytw26-event-recommender/current/recommendations.json`: latest-run pointer for the root page template.
-- `recommendation.html`: committed root template with a New York map on the left, ranked events on the right, and a top-picks/full-list toggle.
+- `recommendation.html`: committed root template with a New York map on the left, ranked events on the right, floating light-theme cards, event-location markers, and a top-picks/full-list toggle.
 - Plain-text summary with the top recommendations and repo/source caveats.
 
 Each recommendation should include:
@@ -213,7 +213,8 @@ The page should show:
 
 - NYC borough boundary layer as a lightweight orientation layer.
 - Event pins where latitude/longitude exists.
-- For events without coordinates, show the location text and a Google Maps search link.
+- For events without coordinates, use a clearly approximate NYC neighborhood/landmark center when the source location can be matched.
+- Google Maps search links for exact venue navigation.
 
 Google Maps search URL format:
 
@@ -221,7 +222,7 @@ Google Maps search URL format:
 https://www.google.com/maps/search/?api=1&query=<url-encoded event title + location + New York NY>
 ```
 
-Do not geocode by guessing. If coordinates are absent, link out rather than inventing a pin.
+Do not present approximate pins as exact venue coordinates. If coordinates are absent, approximate pins are acceptable only as labeled neighborhood/landmark orientation markers.
 
 ## Failure Modes
 

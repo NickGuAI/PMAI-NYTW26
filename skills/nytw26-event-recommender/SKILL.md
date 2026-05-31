@@ -222,6 +222,7 @@ The committed root `recommendation.html` page must use:
 
 - New York map on the left.
 - Ranked event cards on the right.
+- Light theme with floating, high-contrast cards.
 - A "Top picks" view and a "Full ranked list" view so users can inspect all ranked candidates, not only the top recommendations.
 - Event title, date, time, host, location, tracks, score, reasons, caveats, and event link.
 - Google Maps search link for each event location.
@@ -233,7 +234,7 @@ Google Maps search link format:
 https://www.google.com/maps/search/?api=1&query=<url-encoded title + location + New York NY>
 ```
 
-Do not invent latitude/longitude. If coordinates are absent, show location text and the Google Maps search link instead of a precise pin.
+Do not present approximate latitude/longitude as exact venue coordinates. If exact coordinates are absent, the root page may use a built-in NYC neighborhood/landmark center for map orientation, and must keep the Google Maps link for exact venue navigation.
 
 If the user explicitly asks for a single-file snapshot, write it as `recommendation-<run-id>.html` at repo root and warn before committing any embedded private preference data. Do not place snapshot HTML under `.cache`.
 
@@ -290,7 +291,8 @@ If the user explicitly asks for a single-file snapshot, write it as `recommendat
 - Source-backed `tracks` are distinguished from derived `inferred_categories`.
 - The HTML page has a left map area and right ranked-event area.
 - The HTML page lets the user switch between top picks and the full ranked list.
-- Google Maps search links are included for event locations.
+- Map pins are shown from exact coordinates when available or clearly approximate NYC neighborhood/landmark centers when coordinates are absent.
+- Google Maps search links are included for exact event-location navigation.
 - Missing descriptions or calendar fallback URLs are marked as caveats, not hidden.
 - Date drift is detected before output.
 

@@ -456,6 +456,295 @@
       .card-head { flex-direction: column; }
       .location-pill { white-space: normal; }
     }
+
+    :root {
+      --ink-0: #0b1220;
+      --ink-1: #172033;
+      --ink-2: #334155;
+      --ink-3: #475569;
+      --paper: #ffffff;
+      --paper-dim: #475569;
+      --muted: #64748b;
+      --line: rgba(15, 23, 42, 0.13);
+      --line-strong: rgba(15, 23, 42, 0.24);
+      --gold: #b7791f;
+      --seal: #c2410c;
+      --moss: #166534;
+      --blue: #1d4ed8;
+      --shadow: rgba(15, 23, 42, 0.14);
+    }
+
+    body {
+      color: var(--ink-0);
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(248, 250, 252, 0.9)),
+        radial-gradient(circle at 20% 10%, rgba(183, 121, 31, 0.14), transparent 24rem),
+        radial-gradient(circle at 84% 6%, rgba(29, 78, 216, 0.12), transparent 26rem),
+        #eef2f7;
+      overflow-x: hidden;
+    }
+
+    body::before {
+      opacity: 0.32;
+      background-image:
+        linear-gradient(0deg, rgba(15, 23, 42, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(15, 23, 42, 0.035) 1px, transparent 1px);
+      mix-blend-mode: multiply;
+    }
+
+    a { color: var(--blue); }
+
+    .app {
+      grid-template-columns: minmax(460px, 42vw) minmax(0, 1fr);
+      background: linear-gradient(90deg, rgba(248, 250, 252, 0.88), rgba(255, 255, 255, 0.72));
+    }
+
+    .map-pane {
+      border-right: 1px solid rgba(15, 23, 42, 0.18);
+      background:
+        radial-gradient(circle at 52% 44%, rgba(59, 130, 246, 0.09), transparent 23rem),
+        linear-gradient(180deg, #f8fafc 0%, #e9eef5 100%);
+    }
+
+    .brand-block {
+      border: 1px solid rgba(15, 23, 42, 0.18);
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 18px 55px rgba(15, 23, 42, 0.2);
+    }
+
+    .eyebrow { color: var(--gold); }
+    .subtitle { color: var(--ink-3); }
+
+    .seal {
+      border-color: rgba(194, 65, 12, 0.35);
+      background: #fff7ed;
+      color: #9a3412;
+      box-shadow: 0 14px 36px rgba(154, 52, 18, 0.18);
+    }
+
+    #mapSvg {
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(241, 245, 249, 0.86)),
+        radial-gradient(circle at 40% 34%, rgba(59, 130, 246, 0.12), transparent 25rem);
+      border: 1px solid rgba(15, 23, 42, 0.18);
+      box-shadow: 0 22px 70px rgba(15, 23, 42, 0.16);
+    }
+
+    .borough {
+      fill: rgba(219, 234, 254, 0.46);
+      stroke: rgba(37, 99, 235, 0.86);
+      stroke-width: 1.4;
+    }
+
+    .borough-label {
+      fill: rgba(15, 23, 42, 0.48);
+      font-weight: 800;
+    }
+
+    .pin {
+      fill: #dc2626;
+      stroke: #ffffff;
+      stroke-width: 2;
+      cursor: pointer;
+      filter: drop-shadow(0 8px 14px rgba(15, 23, 42, 0.25));
+    }
+
+    .pin.is-approx { fill: #f97316; }
+    .pin.is-active { fill: #0f172a; stroke: #facc15; stroke-width: 3; }
+
+    .pin-count {
+      fill: #ffffff;
+      font-size: 10px;
+      font-weight: 900;
+      text-anchor: middle;
+      dominant-baseline: central;
+      pointer-events: none;
+    }
+
+    .pin-label {
+      fill: #0f172a;
+      paint-order: stroke;
+      stroke: rgba(255, 255, 255, 0.9);
+      stroke-width: 4;
+      stroke-linejoin: round;
+      font-size: 11px;
+      font-weight: 800;
+      pointer-events: none;
+    }
+
+    .map-note {
+      border: 1px solid rgba(15, 23, 42, 0.16);
+      background: rgba(255, 255, 255, 0.94);
+      color: var(--ink-2);
+      box-shadow: 0 14px 40px rgba(15, 23, 42, 0.12);
+    }
+
+    .content { padding: 24px 28px 40px; }
+
+    .toolbar {
+      background: rgba(248, 250, 252, 0.88);
+      border-bottom: 1px solid rgba(15, 23, 42, 0.13);
+      box-shadow: 0 16px 44px rgba(15, 23, 42, 0.08);
+    }
+
+    .run-title h2 { color: #020617; }
+
+    .segmented {
+      border: 1px solid rgba(15, 23, 42, 0.18);
+      background: rgba(255, 255, 255, 0.92);
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.1);
+    }
+
+    button,
+    .file-label {
+      border-color: rgba(15, 23, 42, 0.18);
+      color: #0f172a;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    button:hover,
+    .file-label:hover {
+      border-color: rgba(15, 23, 42, 0.38);
+      background: #ffffff;
+    }
+
+    button.is-active {
+      color: #ffffff;
+      background: #0f172a;
+      border-color: #0f172a;
+    }
+
+    .stat {
+      border: 1px solid rgba(15, 23, 42, 0.16);
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 13px 34px rgba(15, 23, 42, 0.08);
+    }
+
+    .stat-value { color: #020617; }
+    .stat-label { color: #64748b; }
+
+    .empty {
+      border-color: rgba(15, 23, 42, 0.22);
+      background: rgba(255, 255, 255, 0.9);
+      color: var(--ink-2);
+      box-shadow: 0 14px 38px rgba(15, 23, 42, 0.08);
+    }
+
+    .list { gap: 16px; }
+
+    .card {
+      border: 1px solid rgba(15, 23, 42, 0.18);
+      background: #ffffff;
+      box-shadow:
+        0 1px 0 rgba(255, 255, 255, 0.8) inset,
+        0 18px 42px rgba(15, 23, 42, 0.12);
+    }
+
+    .card.is-active {
+      border-color: #0f172a;
+      box-shadow:
+        0 0 0 2px rgba(15, 23, 42, 0.12),
+        0 22px 52px rgba(15, 23, 42, 0.18);
+    }
+
+    .rankline { color: var(--blue); }
+
+    .score {
+      color: #0f172a;
+      background: #facc15;
+    }
+
+    .location-pill {
+      color: #0f172a;
+      background: #f8fafc;
+      border-color: rgba(15, 23, 42, 0.18);
+    }
+
+    .title { color: #020617; }
+    .card,
+    .title,
+    .run-title h2,
+    .map-note {
+      min-width: 0;
+      overflow-wrap: anywhere;
+    }
+    .list,
+    .card-head,
+    .card-head > div:first-child {
+      min-width: 0;
+      max-width: 100%;
+    }
+    .card-head > div:first-child {
+      width: 100%;
+    }
+    .meta { color: #475569; }
+
+    .tag {
+      color: #14532d;
+      background: #dcfce7;
+      border-color: #86efac;
+    }
+
+    .section-label { color: #9a3412; }
+
+    ul { color: #334155; }
+
+    .footer {
+      color: #64748b;
+      border-top-color: rgba(15, 23, 42, 0.13);
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .map-pane {
+        position: relative;
+        height: 52vh;
+        min-height: 420px;
+        border-right: 0;
+        border-bottom: 1px solid rgba(15, 23, 42, 0.18);
+      }
+      .toolbar-top {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 560px) {
+      html,
+      body {
+        width: 100%;
+        overflow-x: hidden;
+      }
+      .app,
+      .map-pane,
+      .content,
+      .toolbar,
+      .list,
+      .card {
+        max-width: 100vw;
+      }
+      .content { padding: 18px 14px 28px; }
+      .toolbar {
+        margin: -18px -14px 16px;
+        padding: 14px;
+      }
+      .map-canvas { padding: 120px 12px 76px; }
+      .brand-block { padding: 12px; }
+      h1 { font-size: 20px; }
+      .card-head { flex-direction: column; }
+      .card,
+      .title {
+        width: 100%;
+        word-break: break-word;
+      }
+      .controls,
+      .segmented {
+        max-width: 100%;
+      }
+      .location-pill { white-space: normal; }
+    }
   </style>
 </head>
 <body>
@@ -465,7 +754,7 @@
         <div class="brand-block">
           <div class="eyebrow">Pioneering Minds AI</div>
           <h1>NYTW26 Recommendations</h1>
-          <div class="subtitle">Sumi-e dark map view powered by local recommender run data.</div>
+          <div class="subtitle">Light map view with event-location markers from recommender data.</div>
         </div>
         <div class="seal" aria-hidden="true">PMAI</div>
       </div>
@@ -518,7 +807,7 @@
       </div>
       <div id="list" class="list"></div>
       <div class="footer" id="footer">
-        Source: PMAI-NYTW26 event index. Map layer: NYC Department of City Planning / NYC Open Data borough boundaries. Event locations are source labels unless a run provides verified coordinates.
+        Source: PMAI-NYTW26 event index. Map layer: NYC Department of City Planning / NYC Open Data borough boundaries. Pins use exact run coordinates when available; otherwise they use approximate NYC neighborhood or landmark centers and link to Google Maps for venue navigation.
       </div>
     </section>
   </main>
@@ -542,6 +831,42 @@
     const mapPath = params.get("map") || "data/maps/nyc-borough-boundaries.geojson";
 
     const el = (id) => document.getElementById(id);
+    const LOCATION_LOOKUP = [
+      { label: "World Trade Center", lat: 40.7127, lng: -74.0134, keys: ["wtc", "world trade center", "one world trade", "oculus"] },
+      { label: "Financial District", lat: 40.7075, lng: -74.0113, keys: ["financial district", "fidi", "wall street", "battery park", "bowling green", "seaport", "south street seaport"] },
+      { label: "Tribeca", lat: 40.7163, lng: -74.0086, keys: ["tribeca"] },
+      { label: "Civic Center", lat: 40.7135, lng: -74.0066, keys: ["civic center", "city hall"] },
+      { label: "SoHo", lat: 40.7240, lng: -74.0000, keys: ["soho"] },
+      { label: "NoHo", lat: 40.7287, lng: -73.9926, keys: ["noho"] },
+      { label: "Nolita", lat: 40.7223, lng: -73.9957, keys: ["nolita"] },
+      { label: "Chinatown", lat: 40.7158, lng: -73.9970, keys: ["chinatown"] },
+      { label: "Lower East Side", lat: 40.7150, lng: -73.9843, keys: ["lower east side", "les"] },
+      { label: "East Village", lat: 40.7265, lng: -73.9815, keys: ["east village"] },
+      { label: "West Village", lat: 40.7358, lng: -74.0036, keys: ["west village"] },
+      { label: "Greenwich Village", lat: 40.7336, lng: -73.9992, keys: ["greenwich village", "washington square"] },
+      { label: "Union Square", lat: 40.7359, lng: -73.9911, keys: ["union square"] },
+      { label: "Flatiron", lat: 40.7411, lng: -73.9897, keys: ["flatiron", "flatiron district"] },
+      { label: "NoMad", lat: 40.7447, lng: -73.9883, keys: ["nomad", "no mad"] },
+      { label: "Chelsea", lat: 40.7465, lng: -74.0014, keys: ["chelsea"] },
+      { label: "Meatpacking", lat: 40.7400, lng: -74.0077, keys: ["meatpacking", "gansevoort"] },
+      { label: "Hudson Yards", lat: 40.7538, lng: -74.0022, keys: ["hudson yards"] },
+      { label: "Midtown", lat: 40.7549, lng: -73.9840, keys: ["midtown", "times square", "bryant park", "rockefeller", "grand central"] },
+      { label: "Midtown East", lat: 40.7540, lng: -73.9717, keys: ["midtown east", "turtle bay"] },
+      { label: "Midtown West", lat: 40.7624, lng: -73.9933, keys: ["midtown west", "hells kitchen", "hell's kitchen"] },
+      { label: "Upper East Side", lat: 40.7736, lng: -73.9566, keys: ["upper east side", "ues"] },
+      { label: "Upper West Side", lat: 40.7870, lng: -73.9754, keys: ["upper west side", "uws"] },
+      { label: "Harlem", lat: 40.8116, lng: -73.9465, keys: ["harlem"] },
+      { label: "DUMBO", lat: 40.7033, lng: -73.9881, keys: ["dumbo"] },
+      { label: "Downtown Brooklyn", lat: 40.6928, lng: -73.9903, keys: ["downtown brooklyn"] },
+      { label: "Brooklyn Navy Yard", lat: 40.7021, lng: -73.9708, keys: ["brooklyn navy yard", "navy yard"] },
+      { label: "Williamsburg", lat: 40.7081, lng: -73.9571, keys: ["williamsburg"] },
+      { label: "Bushwick", lat: 40.6944, lng: -73.9213, keys: ["bushwick"] },
+      { label: "Gowanus", lat: 40.6733, lng: -73.9903, keys: ["gowanus"] },
+      { label: "Long Island City", lat: 40.7447, lng: -73.9485, keys: ["long island city", "lic"] },
+      { label: "Astoria", lat: 40.7644, lng: -73.9235, keys: ["astoria"] },
+      { label: "Jersey City", lat: 40.7178, lng: -74.0431, keys: ["jersey city"] },
+      { label: "Hoboken", lat: 40.7433, lng: -74.0324, keys: ["hoboken"] }
+    ];
 
     function escapeHtml(value) {
       return String(value ?? "")
@@ -585,6 +910,12 @@
 
     function getScore(rec) {
       return rec.final_score ?? rec.score ?? rec.relevance_score ?? rec.combined_score ?? 0;
+    }
+
+    function getVisibleRecommendations() {
+      const recs = normalizeRecommendations(state.data);
+      const topLimit = getTopLimit(state.data);
+      return state.mode === "all" ? recs : recs.slice(0, topLimit);
     }
 
     function getTracks(rec) {
@@ -638,6 +969,46 @@
       const lat = clampNumber(rec.lat ?? rec.latitude, NaN);
       const lng = clampNumber(rec.lng ?? rec.lon ?? rec.longitude, NaN);
       return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+    }
+
+    function normalizePlaceText(value) {
+      return String(value ?? "")
+        .toLowerCase()
+        .replace(/&/g, " and ")
+        .replace(/[^a-z0-9]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+    }
+
+    function approximateCoordinates(rec) {
+      const text = normalizePlaceText([
+        rec.location,
+        rec.venue,
+        rec.address,
+        rec.neighborhood,
+        rec.area,
+        rec.title
+      ].filter(Boolean).join(" "));
+
+      if (!text) return null;
+      for (const place of LOCATION_LOOKUP) {
+        if (place.keys.some(key => text.includes(normalizePlaceText(key)))) {
+          return { lat: place.lat, lng: place.lng, label: place.label, source: "approximate" };
+        }
+      }
+      return null;
+    }
+
+    function getMapLocation(rec) {
+      const exact = getCoordinates(rec);
+      if (exact) {
+        return {
+          ...exact,
+          label: rec.location || rec.venue || "Verified event location",
+          source: "exact"
+        };
+      }
+      return approximateCoordinates(rec);
     }
 
     function syncModeButtons() {
@@ -724,25 +1095,66 @@
         }
       }
 
-      const recs = normalizeRecommendations(state.data);
-      let pinCount = 0;
+      const recs = getVisibleRecommendations();
+      const groups = new Map();
+      let exactCount = 0;
+      let approxCount = 0;
       for (const rec of recs) {
-        const coords = getCoordinates(rec);
-        if (!coords) continue;
-        const p = project({ lng: coords.lng, lat: coords.lat });
+        const location = getMapLocation(rec);
+        if (!location) continue;
+        const key = `${location.lat.toFixed(4)},${location.lng.toFixed(4)}`;
+        if (!groups.has(key)) {
+          groups.set(key, { ...location, records: [] });
+        }
+        groups.get(key).records.push(rec);
+        if (location.source === "exact") exactCount += 1;
+        else approxCount += 1;
+      }
+
+      let pinCount = 0;
+      for (const group of groups.values()) {
+        const p = project({ lng: group.lng, lat: group.lat });
+        const isActive = group.records.some(rec => rec.event_id === state.activeId);
+        const first = group.records[0];
+        const marker = document.createElementNS("http://www.w3.org/2000/svg", "g");
+        marker.setAttribute("transform", `translate(${p.x.toFixed(2)},${p.y.toFixed(2)})`);
+        marker.style.cursor = "pointer";
+
         const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-        circle.setAttribute("class", `pin ${state.activeId === rec.event_id ? "is-active" : ""}`);
-        circle.setAttribute("cx", p.x.toFixed(2));
-        circle.setAttribute("cy", p.y.toFixed(2));
-        circle.setAttribute("r", String(Math.max(5, 12 - Math.min(7, clampNumber(rec.rank, 10) * 0.45))));
-        circle.addEventListener("click", () => focusCard(rec.event_id));
-        svg.appendChild(circle);
+        circle.setAttribute("class", `pin ${group.source === "approximate" ? "is-approx" : ""} ${isActive ? "is-active" : ""}`);
+        circle.setAttribute("r", String(Math.min(22, 8 + Math.sqrt(group.records.length) * 4)));
+        marker.appendChild(circle);
+
+        const count = document.createElementNS("http://www.w3.org/2000/svg", "text");
+        count.setAttribute("class", "pin-count");
+        count.setAttribute("x", "0");
+        count.setAttribute("y", "0");
+        count.textContent = String(group.records.length);
+        marker.appendChild(count);
+
+        if (group.records.length > 1 || isActive) {
+          const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          label.setAttribute("class", "pin-label");
+          label.setAttribute("x", "14");
+          label.setAttribute("y", "4");
+          label.textContent = group.label || first.location || "Event location";
+          marker.appendChild(label);
+        }
+
+        const title = document.createElementNS("http://www.w3.org/2000/svg", "title");
+        title.textContent = `${group.records.length} event${group.records.length === 1 ? "" : "s"} near ${group.label || first.location || "this location"}: ${group.records.slice(0, 4).map(rec => `#${rec.rank} ${rec.title}`).join("; ")}`;
+        marker.appendChild(title);
+
+        marker.addEventListener("click", () => {
+          if (first.event_id) focusCard(first.event_id);
+        });
+        svg.appendChild(marker);
         pinCount += 1;
       }
 
       el("mapNote").textContent = pinCount
-        ? `${pinCount} verified/declared event coordinates rendered. Other events use Google Maps search links.`
-        : "No verified event coordinates in this run. Cards link to Google Maps searches; borough boundaries are for orientation.";
+        ? `${pinCount} event-location marker${pinCount === 1 ? "" : "s"} for ${exactCount + approxCount} shown events: ${exactCount} exact, ${approxCount} approximate neighborhood/landmark. Use Google Maps links for exact venue navigation.`
+        : "No recognized event locations in this view. Cards still link to Google Maps searches; borough boundaries are for orientation.";
     }
 
     function focusCard(eventId) {
@@ -757,7 +1169,7 @@
       syncModeButtons();
       const recs = normalizeRecommendations(state.data);
       const topLimit = getTopLimit(state.data);
-      const visible = state.mode === "all" ? recs : recs.slice(0, topLimit);
+      const visible = getVisibleRecommendations();
       el("visibleCount").textContent = String(visible.length);
       el("totalCount").textContent = String(recs.length);
       el("candidateCount").textContent = String(state.data?.candidate_count ?? state.data?.candidates?.length ?? 0);
