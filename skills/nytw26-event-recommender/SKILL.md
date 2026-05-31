@@ -57,6 +57,9 @@ Required cache layout:
     event-search-index.json
   profiles/
     <profile-id>.json
+  current/
+    run-manifest.json
+    recommendations.json
   runs/
     <run-id>/
       run-manifest.json
@@ -67,8 +70,9 @@ Required cache layout:
         batch-001-ranking.json
       ensemble.json
       recommendations.json
-      recommendations.html
 ```
+
+The public page template lives at repo root as `recommendation.html`, next to `.cache/`. Do not generate the final viewable page inside `.cache` by default. The template reads run data from `.cache/nytw26-event-recommender/current/recommendations.json`, from `recommendation.html?run=<run-id>`, from `recommendation.html?data=<path>`, or from a manually loaded JSON file. Use `recommendation.html?mode=all` when the user wants the full ranked list opened by default.
 
 Use stable hashes:
 
@@ -81,11 +85,12 @@ Use stable hashes:
 Reuse policy:
 
 - Before search, load `indexes/event-search-index.json` if its `data_version` matches. Rebuild it if missing or stale.
-- If a completed run exists for the same `query_key`, reuse its `recommendations.json` and `recommendations.html` unless the user asks for a fresh run.
+- If a completed run exists for the same `query_key`, reuse its `recommendations.json` unless the user asks for a fresh run.
 - If candidate retrieval matches a prior `candidate_hash`, reuse existing batch rankings whose `batch_hash` still matches.
 - If only the preference profile changed, reuse the raw event search index but recompute candidate scores, batch rankings, and ensemble output.
 - If event data or this skill changed, invalidate candidate, batch, and ensemble caches by changing `data_version`.
 - Always record cache hits/misses in `run-manifest.json`.
+- After every completed run, update `current/run-manifest.json` and `current/recommendations.json` to point the root `recommendation.html` page at the latest result.
 
 ## Preference Profile
 
@@ -211,12 +216,13 @@ Produce three outputs:
 
 1. Plain-text summary for chat.
 2. `runs/<run-id>/recommendations.json` with full ranked data and score components.
-3. `runs/<run-id>/recommendations.html` with a map-left/events-right layout.
+3. Update `.cache/nytw26-event-recommender/current/recommendations.json` and `current/run-manifest.json` so root `recommendation.html` loads the latest run.
 
-The HTML page must use:
+The committed root `recommendation.html` page must use:
 
 - New York map on the left.
 - Ranked event cards on the right.
+- A "Top picks" view and a "Full ranked list" view so users can inspect all ranked candidates, not only the top recommendations.
 - Event title, date, time, host, location, tracks, score, reasons, caveats, and event link.
 - Google Maps search link for each event location.
 - Source and data-quality note in the footer.
@@ -228,6 +234,8 @@ https://www.google.com/maps/search/?api=1&query=<url-encoded title + location + 
 ```
 
 Do not invent latitude/longitude. If coordinates are absent, show location text and the Google Maps search link instead of a precise pin.
+
+If the user explicitly asks for a single-file snapshot, write it as `recommendation-<run-id>.html` at repo root and warn before committing any embedded private preference data. Do not place snapshot HTML under `.cache`.
 
 ## Output Schema
 
@@ -272,7 +280,8 @@ Do not invent latitude/longitude. If coordinates are absent, show location text 
 
 ## Acceptance Criteria
 
-- `.cache/nytw26-event-recommender/` contains the run trace: query, candidates, batch rankings, ensemble, final JSON, and final HTML.
+- `.cache/nytw26-event-recommender/` contains the run trace: query, candidates, batch rankings, ensemble, final JSON, and `current/` pointers.
+- Root `recommendation.html` exists next to `.cache` and is the default viewable page.
 - Repeated identical query/profile/data runs reuse cached final outputs unless the user asks for a fresh run.
 - Stale caches are invalidated by `data_version`, `query_key`, `candidate_hash`, `batch_hash`, or `profile_hash`.
 - The final list is ranked and every recommendation includes an event URL.
@@ -280,6 +289,7 @@ Do not invent latitude/longitude. If coordinates are absent, show location text 
 - Preference use is explicit: state which stored preferences affected the ranking.
 - Source-backed `tracks` are distinguished from derived `inferred_categories`.
 - The HTML page has a left map area and right ranked-event area.
+- The HTML page lets the user switch between top picks and the full ranked list.
 - Google Maps search links are included for event locations.
 - Missing descriptions or calendar fallback URLs are marked as caveats, not hidden.
 - Date drift is detected before output.

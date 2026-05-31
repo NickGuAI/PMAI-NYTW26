@@ -1,10 +1,18 @@
 # Ranked Recommendation Page Spec
 
-This spec defines the HTML page produced by `skills/nytw26-event-recommender/SKILL.md`.
+This spec defines the root HTML page used by `skills/nytw26-event-recommender/SKILL.md`.
 
 ## Page Goal
 
-Give a user a scannable ranked recommendation page: New York map on the left, recommended Tech Week events on the right.
+Give a user a scannable ranked recommendation page: New York map on the left, recommended Tech Week events on the right, with a switch between top picks and the full ranked list.
+
+The reusable page template is committed at repo root:
+
+```text
+recommendation.html
+```
+
+It should use PMAI's Sumi-e design language in a dark theme: quiet charcoal surfaces, rice-paper contrast, restrained gold accents, and compact event cards built for scanning.
 
 ## Layout
 
@@ -35,7 +43,15 @@ Mobile:
 - `data/events.json` or `data/events.jsonl`
 - `data/keyword-index.json`
 - `data/maps/nyc-borough-boundaries.geojson`
-- generated `recommendations.json`
+- generated `.cache/nytw26-event-recommender/current/recommendations.json`
+- generated `.cache/nytw26-event-recommender/runs/<run-id>/recommendations.json`
+
+The page should load the current run by default and support:
+
+- `recommendation.html?run=<run-id>`
+- `recommendation.html?data=<path-to-recommendations-json>`
+- `recommendation.html?mode=all` to open the full ranked list by default.
+- manual JSON file upload when browser file loading blocks local fetch.
 
 ## Recommendation Card Fields
 
@@ -98,10 +114,16 @@ The page footer must include:
 
 ## Output Contract
 
-Generate two sibling files:
+Keep the page template and run data separate:
 
-- `recommendations.json`
-- `recommendations.html`
+- `recommendation.html` lives at repo root, next to `.cache/`, and is committed.
+- `.cache/nytw26-event-recommender/runs/<run-id>/recommendations.json` stores full ranked run output.
+- `.cache/nytw26-event-recommender/current/recommendations.json` points the template at the latest completed run.
+- `.cache/nytw26-event-recommender/current/run-manifest.json` records the latest run metadata.
 
-The HTML may be standalone and self-contained except for loading local `data/maps/nyc-borough-boundaries.geojson`, or it may inline the map GeoJSON when a single-file artifact is required.
+Do not write the final viewable `recommendation.html` inside `.cache`. If a user explicitly asks for a single-file snapshot, write `recommendation-<run-id>.html` at repo root and warn before embedding private preference/profile data.
 
+The root template must let users switch between:
+
+- Top picks: compact default view.
+- Full ranked list: every recommendation in `recommendations.json`.

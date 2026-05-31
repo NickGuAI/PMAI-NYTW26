@@ -29,6 +29,9 @@ Minimum cache structure:
   manifest.json
   indexes/event-search-index.json
   profiles/<profile-id>.json
+  current/
+    run-manifest.json
+    recommendations.json
   runs/<run-id>/
     run-manifest.json
     query.json
@@ -38,8 +41,9 @@ Minimum cache structure:
       batch-001-ranking.json
     ensemble.json
     recommendations.json
-    recommendations.html
 ```
+
+The viewable recommendation page is not part of the cache. It lives at repo root as `recommendation.html` and reads the cached `recommendations.json` output.
 
 Reuse rules:
 
@@ -48,6 +52,7 @@ Reuse rules:
 - Reuse a batch ranking when the batch event IDs, scoring rubric version, data version, query, and profile hash match.
 - Recompute candidate scoring, batches, and ensemble output when the preference profile changes.
 - Record cache hits and misses in each `run-manifest.json`.
+- Update `.cache/nytw26-event-recommender/current/` after each successful run so root `recommendation.html` can open the latest result.
 
 ## Recommendation Pipeline
 
@@ -190,7 +195,8 @@ Write fused results to `runs/<run-id>/ensemble.json`.
 Return both machine-readable and human-readable output:
 
 - `runs/<run-id>/recommendations.json`: ranked events with score components, reasons, caveats, map fields, and cache metadata.
-- `runs/<run-id>/recommendations.html`: a viewable page with a New York map on the left and ranked events on the right.
+- `.cache/nytw26-event-recommender/current/recommendations.json`: latest-run pointer for the root page template.
+- `recommendation.html`: committed root template with a New York map on the left, ranked events on the right, and a top-picks/full-list toggle.
 - Plain-text summary with the top recommendations and repo/source caveats.
 
 Each recommendation should include:

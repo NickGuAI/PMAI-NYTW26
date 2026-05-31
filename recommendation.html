@@ -1,0 +1,871 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>PMAI NYTW26 Recommendations</title>
+  <style>
+    :root {
+      --ink-0: #050608;
+      --ink-1: #0b0e12;
+      --ink-2: #121820;
+      --ink-3: #1b2530;
+      --paper: #efe8d6;
+      --paper-dim: #b9b09b;
+      --muted: #77808c;
+      --line: rgba(239, 232, 214, 0.14);
+      --line-strong: rgba(239, 232, 214, 0.28);
+      --gold: #d6a84f;
+      --seal: #b84a3c;
+      --moss: #88a37a;
+      --blue: #85a9ff;
+      --shadow: rgba(0, 0, 0, 0.42);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      color: var(--paper);
+      background:
+        radial-gradient(circle at 18% 12%, rgba(214, 168, 79, 0.09), transparent 26rem),
+        radial-gradient(circle at 88% 18%, rgba(132, 169, 255, 0.07), transparent 28rem),
+        linear-gradient(135deg, #050608 0%, #111820 54%, #07090d 100%);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      min-height: 100vh;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      opacity: 0.14;
+      background-image:
+        linear-gradient(0deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
+      background-size: 32px 32px;
+      mix-blend-mode: screen;
+    }
+
+    a { color: var(--blue); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .app {
+      min-height: 100vh;
+      display: grid;
+      grid-template-columns: minmax(380px, 42vw) minmax(0, 1fr);
+    }
+
+    .map-pane {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      border-right: 1px solid var(--line-strong);
+      background:
+        linear-gradient(180deg, rgba(239, 232, 214, 0.04), rgba(239, 232, 214, 0.015)),
+        var(--ink-1);
+      overflow: hidden;
+    }
+
+    .map-header {
+      position: absolute;
+      z-index: 3;
+      top: 18px;
+      left: 18px;
+      right: 18px;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: flex-start;
+      pointer-events: none;
+    }
+
+    .brand-block {
+      max-width: 440px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(5, 6, 8, 0.72);
+      box-shadow: 0 18px 50px var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .eyebrow {
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: 0;
+      text-transform: uppercase;
+      font-weight: 700;
+      margin-bottom: 7px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 24px;
+      line-height: 1.08;
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: var(--paper-dim);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .seal {
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      border: 1px solid rgba(184, 74, 60, 0.56);
+      background: rgba(184, 74, 60, 0.18);
+      color: #f4c0b7;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 12px;
+      letter-spacing: 0;
+      box-shadow: 0 18px 46px var(--shadow);
+    }
+
+    .map-canvas {
+      position: absolute;
+      inset: 0;
+      padding: 110px 24px 64px;
+    }
+
+    #mapSvg {
+      width: 100%;
+      height: 100%;
+      display: block;
+      border-radius: 8px;
+      background:
+        radial-gradient(circle at 50% 38%, rgba(239, 232, 214, 0.08), transparent 36rem),
+        rgba(255, 255, 255, 0.018);
+      border: 1px solid var(--line);
+    }
+
+    .borough {
+      fill: rgba(239, 232, 214, 0.045);
+      stroke: rgba(132, 169, 255, 0.7);
+      stroke-width: 1.2;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .borough-label {
+      fill: rgba(239, 232, 214, 0.5);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      pointer-events: none;
+    }
+
+    .pin {
+      fill: rgba(184, 74, 60, 0.9);
+      stroke: rgba(239, 232, 214, 0.78);
+      stroke-width: 1.2;
+      cursor: pointer;
+      filter: drop-shadow(0 7px 12px rgba(0, 0, 0, 0.45));
+    }
+
+    .pin.is-active {
+      fill: var(--gold);
+      stroke: var(--ink-0);
+      stroke-width: 2;
+    }
+
+    .map-note {
+      position: absolute;
+      left: 18px;
+      right: 18px;
+      bottom: 18px;
+      padding: 10px 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: rgba(5, 6, 8, 0.7);
+      color: var(--paper-dim);
+      font-size: 12px;
+      line-height: 1.45;
+      backdrop-filter: blur(10px);
+    }
+
+    .content {
+      min-width: 0;
+      padding: 24px 26px 34px;
+    }
+
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      margin: -24px -26px 20px;
+      padding: 18px 26px 14px;
+      background: linear-gradient(180deg, rgba(5, 6, 8, 0.95), rgba(5, 6, 8, 0.78));
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(14px);
+    }
+
+    .toolbar-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 14px;
+    }
+
+    .run-title {
+      min-width: 0;
+    }
+
+    .run-title h2 {
+      margin: 0;
+      font-size: 22px;
+      line-height: 1.18;
+    }
+
+    .run-meta {
+      margin-top: 5px;
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .segmented {
+      display: inline-flex;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(239, 232, 214, 0.05);
+    }
+
+    button,
+    .file-label {
+      appearance: none;
+      border: 1px solid var(--line);
+      color: var(--paper);
+      background: rgba(239, 232, 214, 0.065);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:hover,
+    .file-label:hover {
+      border-color: var(--line-strong);
+      background: rgba(239, 232, 214, 0.1);
+    }
+
+    button.is-active {
+      color: var(--ink-0);
+      background: var(--paper);
+      border-color: var(--paper);
+    }
+
+    input[type="file"] {
+      position: absolute;
+      inline-size: 1px;
+      block-size: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 10px 12px;
+      background: rgba(239, 232, 214, 0.04);
+    }
+
+    .stat-value {
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--paper);
+    }
+
+    .stat-label {
+      margin-top: 2px;
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+
+    .empty {
+      border: 1px dashed var(--line-strong);
+      border-radius: 8px;
+      padding: 24px;
+      background: rgba(239, 232, 214, 0.035);
+      color: var(--paper-dim);
+      line-height: 1.6;
+    }
+
+    .list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 16px;
+      background:
+        linear-gradient(180deg, rgba(239, 232, 214, 0.07), rgba(239, 232, 214, 0.032)),
+        rgba(9, 12, 16, 0.86);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+    }
+
+    .card.is-active {
+      border-color: rgba(214, 168, 79, 0.75);
+      box-shadow: 0 0 0 1px rgba(214, 168, 79, 0.2), 0 18px 45px rgba(0, 0, 0, 0.34);
+    }
+
+    .card-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .rankline {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      color: var(--blue);
+      font-weight: 800;
+      font-size: 14px;
+    }
+
+    .score {
+      color: var(--ink-0);
+      background: var(--gold);
+      border-radius: 999px;
+      padding: 2px 8px;
+      font-size: 12px;
+    }
+
+    .location-pill {
+      color: var(--paper-dim);
+      background: rgba(239, 232, 214, 0.08);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 9px;
+      font-size: 12px;
+      white-space: nowrap;
+    }
+
+    .title {
+      margin: 0;
+      font-size: 18px;
+      line-height: 1.24;
+    }
+
+    .meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      margin: 9px 0 11px;
+      color: var(--paper-dim);
+      font-size: 13px;
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .tag {
+      color: #d8ead0;
+      background: rgba(136, 163, 122, 0.16);
+      border: 1px solid rgba(136, 163, 122, 0.3);
+      border-radius: 999px;
+      padding: 3px 8px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .section-label {
+      color: var(--gold);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0;
+      font-weight: 800;
+      margin: 10px 0 5px;
+    }
+
+    ul {
+      margin: 0;
+      padding-left: 18px;
+      color: var(--paper-dim);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .links {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .footer {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.55;
+      border-top: 1px solid var(--line);
+      padding-top: 14px;
+    }
+
+    @media (max-width: 980px) {
+      .app { grid-template-columns: 1fr; }
+      .map-pane { position: relative; height: 52vh; min-height: 420px; border-right: 0; border-bottom: 1px solid var(--line-strong); }
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .toolbar-top { align-items: flex-start; flex-direction: column; }
+    }
+
+    @media (max-width: 560px) {
+      .content { padding: 18px 14px 28px; }
+      .toolbar { margin: -18px -14px 16px; padding: 14px; }
+      .map-canvas { padding: 118px 12px 76px; }
+      .brand-block { padding: 12px; }
+      h1 { font-size: 20px; }
+      .card-head { flex-direction: column; }
+      .location-pill { white-space: normal; }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="map-pane" aria-label="New York map">
+      <div class="map-header">
+        <div class="brand-block">
+          <div class="eyebrow">Pioneering Minds AI</div>
+          <h1>NYTW26 Recommendations</h1>
+          <div class="subtitle">Sumi-e dark map view powered by local recommender run data.</div>
+        </div>
+        <div class="seal" aria-hidden="true">PMAI</div>
+      </div>
+      <div class="map-canvas">
+        <svg id="mapSvg" role="img" aria-label="NYC borough boundary map"></svg>
+      </div>
+      <div class="map-note" id="mapNote">Loading borough boundary layer and recommendation data...</div>
+    </section>
+
+    <section class="content">
+      <div class="toolbar">
+        <div class="toolbar-top">
+          <div class="run-title">
+            <h2 id="queryTitle">Recommendation run</h2>
+            <div class="run-meta" id="runMeta">Waiting for run data.</div>
+          </div>
+          <div class="controls">
+            <div class="segmented" aria-label="Display mode">
+              <button type="button" id="topMode" class="is-active">Top picks</button>
+              <button type="button" id="allMode">Full ranked list</button>
+            </div>
+            <label class="file-label" for="fileInput">Load JSON</label>
+            <input id="fileInput" type="file" accept="application/json,.json">
+          </div>
+        </div>
+        <div class="stats">
+          <div class="stat">
+            <div class="stat-value" id="visibleCount">0</div>
+            <div class="stat-label">Shown</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="totalCount">0</div>
+            <div class="stat-label">Ranked</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="candidateCount">0</div>
+            <div class="stat-label">Candidates</div>
+          </div>
+          <div class="stat">
+            <div class="stat-value" id="cacheState">Local</div>
+            <div class="stat-label">Source</div>
+          </div>
+        </div>
+      </div>
+
+      <div id="emptyState" class="empty">
+        Open this file from a local web server at the repo root so it can load
+        <code>.cache/nytw26-event-recommender/current/recommendations.json</code>,
+        or use <strong>Load JSON</strong> to select a run file manually.
+      </div>
+      <div id="list" class="list"></div>
+      <div class="footer" id="footer">
+        Source: PMAI-NYTW26 event index. Map layer: NYC Department of City Planning / NYC Open Data borough boundaries. Event locations are source labels unless a run provides verified coordinates.
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+
+    const state = {
+      data: null,
+      map: null,
+      mode: params.get("mode") === "all" ? "all" : "top",
+      activeId: null,
+      sourceLabel: "Local"
+    };
+
+    const runParam = params.get("run");
+    const dataParam = params.get("data");
+    const defaultDataPath = dataParam || (runParam
+      ? `.cache/nytw26-event-recommender/runs/${runParam}/recommendations.json`
+      : ".cache/nytw26-event-recommender/current/recommendations.json");
+    const mapPath = params.get("map") || "data/maps/nyc-borough-boundaries.geojson";
+
+    const el = (id) => document.getElementById(id);
+
+    function escapeHtml(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function clampNumber(value, fallback = 0) {
+      const n = Number(value);
+      return Number.isFinite(n) ? n : fallback;
+    }
+
+    function scoreLabel(value) {
+      const n = clampNumber(value, 0);
+      return n >= 10 ? n.toFixed(1) : n.toFixed(2);
+    }
+
+    function normalizeRecommendations(data) {
+      const list = data?.recommendations || data?.results || data?.ranked_results || [];
+      return Array.isArray(list) ? list.slice().sort((a, b) => {
+        const ar = clampNumber(a.rank, 9999);
+        const br = clampNumber(b.rank, 9999);
+        return ar - br;
+      }) : [];
+    }
+
+    function getTopLimit(data) {
+      return clampNumber(data?.top_count || data?.requested_count || data?.output_size || 10, 10);
+    }
+
+    function getRunId(data) {
+      return data?.cache?.run_id || data?.run_id || data?.metadata?.run_id || runParam || "current";
+    }
+
+    function getQuery(data) {
+      return data?.query || data?.query_text || data?.request?.query || "Recommendation run";
+    }
+
+    function getScore(rec) {
+      return rec.final_score ?? rec.score ?? rec.relevance_score ?? rec.combined_score ?? 0;
+    }
+
+    function getTracks(rec) {
+      const tracks = rec.tracks || rec.source_tracks || [];
+      return Array.isArray(tracks) ? tracks.filter(Boolean) : [];
+    }
+
+    function getReasons(rec) {
+      const reasons = rec.reasons || rec.why_it_fits || rec.fit_reasons || [];
+      if (Array.isArray(reasons)) return reasons.filter(Boolean);
+      return reasons ? [String(reasons)] : [];
+    }
+
+    function getCaveats(rec) {
+      const caveats = rec.caveats || rec.risks || [];
+      if (Array.isArray(caveats)) return caveats.filter(Boolean);
+      return caveats ? [String(caveats)] : [];
+    }
+
+    function googleMapsUrl(rec) {
+      if (rec.google_maps_url) return rec.google_maps_url;
+      const q = [rec.title, rec.location, "New York NY"].filter(Boolean).join(" ");
+      return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(q)}`;
+    }
+
+    function getCoordinates(rec) {
+      const candidates = [
+        rec.coordinates,
+        rec.coordinate,
+        rec.coords,
+        rec.map,
+        rec.map_position,
+        rec.location_coordinates
+      ].filter(Boolean);
+
+      for (const item of candidates) {
+        if (Array.isArray(item) && item.length >= 2) {
+          const a = clampNumber(item[0], NaN);
+          const b = clampNumber(item[1], NaN);
+          if (Number.isFinite(a) && Number.isFinite(b)) {
+            return Math.abs(a) <= 90 ? { lat: a, lng: b } : { lng: a, lat: b };
+          }
+        }
+        if (typeof item === "object") {
+          const lat = clampNumber(item.lat ?? item.latitude, NaN);
+          const lng = clampNumber(item.lng ?? item.lon ?? item.longitude, NaN);
+          if (Number.isFinite(lat) && Number.isFinite(lng)) return { lat, lng };
+        }
+      }
+
+      const lat = clampNumber(rec.lat ?? rec.latitude, NaN);
+      const lng = clampNumber(rec.lng ?? rec.lon ?? rec.longitude, NaN);
+      return Number.isFinite(lat) && Number.isFinite(lng) ? { lat, lng } : null;
+    }
+
+    function syncModeButtons() {
+      el("topMode").classList.toggle("is-active", state.mode === "top");
+      el("allMode").classList.toggle("is-active", state.mode === "all");
+    }
+
+    function collectCoordinates(geometry, output = []) {
+      if (!geometry) return output;
+      const walk = (node) => {
+        if (!Array.isArray(node)) return;
+        if (typeof node[0] === "number" && typeof node[1] === "number") {
+          output.push([node[0], node[1]]);
+          return;
+        }
+        node.forEach(walk);
+      };
+      walk(geometry.coordinates);
+      return output;
+    }
+
+    function projectFactory(geojson, width, height) {
+      const coords = [];
+      for (const feature of geojson.features || []) collectCoordinates(feature.geometry, coords);
+      const lngs = coords.map(([lng]) => lng);
+      const lats = coords.map(([, lat]) => lat);
+      const minLng = Math.min(...lngs);
+      const maxLng = Math.max(...lngs);
+      const minLat = Math.min(...lats);
+      const maxLat = Math.max(...lats);
+      const pad = 28;
+      const scale = Math.min((width - pad * 2) / (maxLng - minLng), (height - pad * 2) / (maxLat - minLat));
+      const xOffset = (width - (maxLng - minLng) * scale) / 2;
+      const yOffset = (height - (maxLat - minLat) * scale) / 2;
+      return ({ lng, lat }) => ({
+        x: xOffset + (lng - minLng) * scale,
+        y: yOffset + (maxLat - lat) * scale
+      });
+    }
+
+    function geometryToPath(geometry, project) {
+      const ringToPath = (ring) => ring.map(([lng, lat], i) => {
+        const p = project({ lng, lat });
+        return `${i === 0 ? "M" : "L"}${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+      }).join(" ") + " Z";
+
+      if (!geometry) return "";
+      if (geometry.type === "Polygon") return geometry.coordinates.map(ringToPath).join(" ");
+      if (geometry.type === "MultiPolygon") return geometry.coordinates.flatMap(poly => poly.map(ringToPath)).join(" ");
+      return "";
+    }
+
+    function renderMap() {
+      const svg = el("mapSvg");
+      const width = Math.max(560, svg.clientWidth || 800);
+      const height = Math.max(520, svg.clientHeight || 800);
+      svg.setAttribute("viewBox", `0 0 ${width} ${height}`);
+      svg.innerHTML = "";
+
+      if (!state.map?.features?.length) {
+        svg.innerHTML = `<text x="32" y="48" fill="rgba(239,232,214,.62)" font-size="16">Map layer unavailable</text>`;
+        return;
+      }
+
+      const project = projectFactory(state.map, width, height);
+      for (const feature of state.map.features) {
+        const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+        path.setAttribute("class", "borough");
+        path.setAttribute("d", geometryToPath(feature.geometry, project));
+        svg.appendChild(path);
+
+        const coords = collectCoordinates(feature.geometry, []);
+        if (coords.length) {
+          const avg = coords.reduce((acc, [lng, lat]) => ({ lng: acc.lng + lng, lat: acc.lat + lat }), { lng: 0, lat: 0 });
+          avg.lng /= coords.length;
+          avg.lat /= coords.length;
+          const labelPoint = project(avg);
+          const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+          label.setAttribute("class", "borough-label");
+          label.setAttribute("x", labelPoint.x.toFixed(2));
+          label.setAttribute("y", labelPoint.y.toFixed(2));
+          label.textContent = feature.properties?.boroname || "";
+          svg.appendChild(label);
+        }
+      }
+
+      const recs = normalizeRecommendations(state.data);
+      let pinCount = 0;
+      for (const rec of recs) {
+        const coords = getCoordinates(rec);
+        if (!coords) continue;
+        const p = project({ lng: coords.lng, lat: coords.lat });
+        const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+        circle.setAttribute("class", `pin ${state.activeId === rec.event_id ? "is-active" : ""}`);
+        circle.setAttribute("cx", p.x.toFixed(2));
+        circle.setAttribute("cy", p.y.toFixed(2));
+        circle.setAttribute("r", String(Math.max(5, 12 - Math.min(7, clampNumber(rec.rank, 10) * 0.45))));
+        circle.addEventListener("click", () => focusCard(rec.event_id));
+        svg.appendChild(circle);
+        pinCount += 1;
+      }
+
+      el("mapNote").textContent = pinCount
+        ? `${pinCount} verified/declared event coordinates rendered. Other events use Google Maps search links.`
+        : "No verified event coordinates in this run. Cards link to Google Maps searches; borough boundaries are for orientation.";
+    }
+
+    function focusCard(eventId) {
+      state.activeId = eventId;
+      document.querySelectorAll(".card").forEach(card => card.classList.toggle("is-active", card.dataset.eventId === eventId));
+      renderMap();
+      const card = document.querySelector(`.card[data-event-id="${CSS.escape(eventId || "")}"]`);
+      if (card) card.scrollIntoView({ block: "center", behavior: "smooth" });
+    }
+
+    function renderCards() {
+      syncModeButtons();
+      const recs = normalizeRecommendations(state.data);
+      const topLimit = getTopLimit(state.data);
+      const visible = state.mode === "all" ? recs : recs.slice(0, topLimit);
+      el("visibleCount").textContent = String(visible.length);
+      el("totalCount").textContent = String(recs.length);
+      el("candidateCount").textContent = String(state.data?.candidate_count ?? state.data?.candidates?.length ?? 0);
+      el("cacheState").textContent = state.sourceLabel;
+      el("queryTitle").textContent = getQuery(state.data);
+      el("runMeta").textContent = `Run ${getRunId(state.data)} | ${state.mode === "all" ? "full ranked list" : `top ${Math.min(topLimit, recs.length)}`}`;
+
+      el("emptyState").style.display = recs.length ? "none" : "block";
+      const list = el("list");
+      list.innerHTML = "";
+
+      for (const rec of visible) {
+        const tracks = getTracks(rec);
+        const reasons = getReasons(rec);
+        const caveats = getCaveats(rec);
+        const article = document.createElement("article");
+        article.className = "card";
+        article.dataset.eventId = rec.event_id || "";
+        article.innerHTML = `
+          <div class="card-head">
+            <div>
+              <div class="rankline">#${escapeHtml(rec.rank ?? "")} <span class="score">${escapeHtml(scoreLabel(getScore(rec)))}</span></div>
+              <h3 class="title">${escapeHtml(rec.title || "Untitled event")}</h3>
+            </div>
+            <div class="location-pill">${escapeHtml(rec.location || "Location TBD")}</div>
+          </div>
+          <div class="meta">
+            <span>${escapeHtml(rec.date || "")}</span>
+            <span>${escapeHtml(rec.start_time || rec.time || "")}</span>
+            <span>${escapeHtml(rec.host || "")}</span>
+          </div>
+          <div class="tags">${tracks.map(track => `<span class="tag">${escapeHtml(track)}</span>`).join("")}</div>
+          ${reasons.length ? `<div class="section-label">Why it fits</div><ul>${reasons.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
+          ${caveats.length ? `<div class="section-label">Caveats</div><ul>${caveats.map(item => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}
+          <div class="links">
+            ${rec.event_url ? `<a href="${escapeHtml(rec.event_url)}" target="_blank" rel="noopener">Event page</a>` : ""}
+            <a href="${escapeHtml(googleMapsUrl(rec))}" target="_blank" rel="noopener">Google Maps</a>
+          </div>
+        `;
+        article.addEventListener("click", () => {
+          if (rec.event_id) focusCard(rec.event_id);
+        });
+        list.appendChild(article);
+      }
+
+      renderMap();
+    }
+
+    async function fetchJson(path) {
+      const response = await fetch(path, { cache: "no-store" });
+      if (!response.ok) throw new Error(`HTTP ${response.status}`);
+      return response.json();
+    }
+
+    async function loadInitialData() {
+      try {
+        state.map = await fetchJson(mapPath);
+      } catch (error) {
+        console.warn("Map load failed", error);
+        state.map = { type: "FeatureCollection", features: [] };
+      }
+
+      if (window.NYTW26_RECOMMENDATIONS) {
+        state.data = window.NYTW26_RECOMMENDATIONS;
+        state.sourceLabel = "Embedded";
+        renderCards();
+        return;
+      }
+
+      try {
+        state.data = await fetchJson(defaultDataPath);
+        state.sourceLabel = runParam ? "Run" : "Current";
+      } catch (error) {
+        console.warn("Recommendation data load failed", error);
+        state.data = { recommendations: [] };
+        state.sourceLabel = "Manual";
+      }
+      renderCards();
+    }
+
+    el("topMode").addEventListener("click", () => {
+      state.mode = "top";
+      el("topMode").classList.add("is-active");
+      el("allMode").classList.remove("is-active");
+      renderCards();
+    });
+
+    el("allMode").addEventListener("click", () => {
+      state.mode = "all";
+      el("allMode").classList.add("is-active");
+      el("topMode").classList.remove("is-active");
+      renderCards();
+    });
+
+    el("fileInput").addEventListener("change", async (event) => {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      try {
+        state.data = JSON.parse(await file.text());
+        state.sourceLabel = "File";
+        renderCards();
+      } catch (error) {
+        alert(`Could not load JSON: ${error.message}`);
+      }
+    });
+
+    window.addEventListener("resize", () => renderMap());
+    loadInitialData();
+  </script>
+</body>
+</html>

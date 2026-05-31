@@ -79,6 +79,8 @@ docs/
   recommendation-algorithm.md
   recommendation-page-spec.md
 
+recommendation.html          # reusable Sumi-e dark-theme recommender result page
+
 skills/
   nytw26-event-query/
     SKILL.md                # agent instructions for querying this repo
@@ -147,3 +149,5 @@ The repo now includes a recommendation design memo and a recommender skill:
 - `skills/nytw26-event-recommender/SKILL.md`
 
 The recommendation flow is broad retrieval to roughly 100 candidates, 10-event batch ranking, ensemble reassembly, and a ranked HTML result page with a New York map on the left and event recommendations on the right. The repo stores a lightweight NYC borough boundary GeoJSON for the map background and links out to Google Maps searches for event locations unless verified coordinates are added later. Personal preference profiles should stay local/private unless a user explicitly asks to publish them.
+
+`recommendation.html` is the reusable Sumi-e dark-theme result template at repo root. Recommender runs should write JSON under `.cache/nytw26-event-recommender/` and update `.cache/nytw26-event-recommender/current/recommendations.json`; the page can then show top picks or the full ranked list from that cached run data.

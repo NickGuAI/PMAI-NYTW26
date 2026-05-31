@@ -12,6 +12,7 @@ Run date: 2026-05-31
 | NYC borough boundary GeoJSON | Done | https://github.com/NickGuAI/PMAI-NYTW26/blob/main/data/maps/nyc-borough-boundaries.geojson |
 | Map source manifest | Done | https://github.com/NickGuAI/PMAI-NYTW26/blob/main/data/maps/source-manifest.json |
 | Recommendation page spec | Done | https://github.com/NickGuAI/PMAI-NYTW26/blob/main/docs/recommendation-page-spec.md |
+| Root recommendation template | Done | https://github.com/NickGuAI/PMAI-NYTW26/blob/main/recommendation.html |
 
 ## Verification
 
@@ -27,7 +28,8 @@ Run date: 2026-05-31
   - Ensemble reassembly.
   - Explicit preference profile handling.
   - Ranked JSON output.
-  - Map-left/events-right HTML output.
+  - Root map-left/events-right HTML template.
+  - `.cache` run-data reuse contract with a latest-run `current/` pointer.
   - Google Maps search links.
   - Date drift detection.
 - Page spec includes:
@@ -36,6 +38,7 @@ Run date: 2026-05-31
   - Map data input.
   - No coordinate guessing.
   - Google Maps link behavior.
+  - Top-picks and full-ranked-list views.
 
 ## Source Notes
 
@@ -64,10 +67,10 @@ Result:
 - Intentional scope decision: stored lightweight official NYC borough boundaries in GitHub rather than mirroring full DCM shapefiles/geodatabases. This satisfies the map-backed page need while avoiding large, frequently changing source-map dumps.
 - Implementation boundary: this package writes the recommender skill and output/page contract. It does not implement a production web app or real-time geocoder.
 - Privacy boundary: preference profiles are specified but not committed with personal data. The skill requires explicit confirmation before writing user preference data into the public repo.
+- Output boundary: final viewable `recommendation.html` stays at repo root; `.cache` stores reusable run JSON and ranking traces.
 
 Future continuation:
 
 - Add verified event coordinates if a trusted geocoder/source is selected.
-- Create a sample generated `recommendations.html` for a specific user query after the user provides interests.
+- Create a sample `.cache/nytw26-event-recommender/current/recommendations.json` for a specific user query after the user provides interests.
 - If production UI is needed, hand off to engineering rather than expanding this ops/data repo into an app.
-
