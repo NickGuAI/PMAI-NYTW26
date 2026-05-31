@@ -12,6 +12,43 @@ Internal knowledge search surfaced three useful patterns:
 
 For this repo, the practical version is: broad search first, batch ranking second, ensemble reassembly third.
 
+## Cache And Reuse
+
+The recommender should persist generated state under:
+
+```text
+.cache/nytw26-event-recommender/
+```
+
+This cache is local working state and should not be committed to the public repo by default. It exists so repeated runs can reuse generated indexes and expensive ranking work.
+
+Minimum cache structure:
+
+```text
+.cache/nytw26-event-recommender/
+  manifest.json
+  indexes/event-search-index.json
+  profiles/<profile-id>.json
+  runs/<run-id>/
+    run-manifest.json
+    query.json
+    candidates.json
+    batches/
+      batch-001-input.json
+      batch-001-ranking.json
+    ensemble.json
+    recommendations.json
+    recommendations.html
+```
+
+Reuse rules:
+
+- Reuse the event search index when its `data_version` matches the current event files and recommender skill.
+- Reuse a completed run when normalized query, hard filters, requested output size, data version, and active profile hash match.
+- Reuse a batch ranking when the batch event IDs, scoring rubric version, data version, query, and profile hash match.
+- Recompute candidate scoring, batches, and ensemble output when the preference profile changes.
+- Record cache hits and misses in each `run-manifest.json`.
+
 ## Recommendation Pipeline
 
 ### 1. Parse the request
@@ -24,6 +61,8 @@ Extract:
 - Hard exclusions, such as no breakfasts, no invite-only events, or no unavailable descriptions.
 - Desired output size, defaulting to 10 final recommendations.
 - Optional stored preference profile.
+
+Write the normalized query to `runs/<run-id>/query.json`.
 
 ### 2. Build a preference profile
 
@@ -59,9 +98,13 @@ Preference updates should be additive and reversible:
 - Saved/clicked events add weak positive signals from their tracks, host, keywords, time, and neighborhood.
 - Dismissed events add weak negative signals.
 - Explicit user statements override inferred behavior.
-- Profiles should be local-first. Do not publish personal preference files to the public repo.
+- Profiles should be local-first under `.cache/nytw26-event-recommender/profiles/`. Do not publish personal preference files to the public repo.
 
-### 3. Retrieve broad candidates
+### 3. Build or reuse the event search index
+
+Create `.cache/nytw26-event-recommender/indexes/event-search-index.json` from the event files. It should include normalized searchable fields, track labels, derived categories, keywords, date/time fields, and data-quality flags. Rebuild it when `data_version` changes.
+
+### 4. Retrieve broad candidates
 
 Retrieve about 100 candidates before any expensive judgement. If fewer than 100 match hard filters, use all eligible events.
 
@@ -90,7 +133,9 @@ candidate_score =
 
 Keep the top ~100 by `candidate_score`. Preserve the score components for later explanation.
 
-### 4. Rank in batches of 10
+Write the candidate set and first-pass score components to `runs/<run-id>/candidates.json`.
+
+### 5. Rank in batches of 10
 
 Split candidates into batches of 10. Each batch judge returns:
 
@@ -99,6 +144,8 @@ Split candidates into batches of 10. Each batch judge returns:
 - Fit reasons grounded in event fields.
 - Risks or caveats, such as missing description, weak location, invite-only status, or generic relevance.
 - Suggested map pin priority.
+
+Write every batch input and output to `runs/<run-id>/batches/`. Reuse prior matching batch rankings instead of reranking.
 
 Each judge should evaluate the event against five axes:
 
@@ -110,7 +157,7 @@ Each judge should evaluate the event against five axes:
 | Schedule/location fit | 15 | Date, time, neighborhood, and geographic practicality. |
 | Diversity value | 10 | Avoid ten near-duplicate mixers when a varied list is better. |
 
-### 5. Ensemble and reassemble
+### 6. Ensemble and reassemble
 
 Use two aggregation passes:
 
@@ -136,12 +183,14 @@ Apply a final diversity pass:
 - Avoid consecutive recommendations with the same generic format unless the match is clearly strong.
 - Preserve must-attend high-score events even if they reduce diversity.
 
-### 6. Produce ranked outputs
+Write fused results to `runs/<run-id>/ensemble.json`.
+
+### 7. Produce ranked outputs
 
 Return both machine-readable and human-readable output:
 
-- `recommendations.json`: ranked events with score components, reasons, caveats, and map fields.
-- `recommendations.html`: a viewable page with a New York map on the left and ranked events on the right.
+- `runs/<run-id>/recommendations.json`: ranked events with score components, reasons, caveats, map fields, and cache metadata.
+- `runs/<run-id>/recommendations.html`: a viewable page with a New York map on the left and ranked events on the right.
 - Plain-text summary with the top recommendations and repo/source caveats.
 
 Each recommendation should include:
@@ -175,4 +224,3 @@ Do not geocode by guessing. If coordinates are absent, link out rather than inve
 - **Preference conflict:** explicit query wins over stored profile.
 - **Missing descriptions:** do not discard; mark as lower data confidence.
 - **Date drift:** if user asks outside 2026-06-01 through 2026-06-07, say the repo only covers the current indexed window.
-

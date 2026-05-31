@@ -38,6 +38,55 @@ Use map files when generating HTML:
 
 If data files are missing, say exactly which file is missing and stop.
 
+## Local Cache Contract
+
+Store generated recommendation state under:
+
+```text
+.cache/nytw26-event-recommender/
+```
+
+This cache is part of the recommender workflow and should be reused across runs. It is local working state, not public repo content. Do not commit `.cache` unless the user explicitly asks after seeing the privacy warning.
+
+Required cache layout:
+
+```text
+.cache/nytw26-event-recommender/
+  manifest.json
+  indexes/
+    event-search-index.json
+  profiles/
+    <profile-id>.json
+  runs/
+    <run-id>/
+      run-manifest.json
+      query.json
+      candidates.json
+      batches/
+        batch-001-input.json
+        batch-001-ranking.json
+      ensemble.json
+      recommendations.json
+      recommendations.html
+```
+
+Use stable hashes:
+
+- `data_version`: hash of `data/events.jsonl`, `data/keyword-index.json`, `data/events.schema.json`, and this skill file.
+- `profile_hash`: hash of the active preference profile, or `none`.
+- `query_key`: hash of normalized query, hard filters, requested output size, `data_version`, and `profile_hash`.
+- `candidate_hash`: hash of ordered candidate event IDs plus their first-pass score components.
+- `batch_hash`: hash of batch event IDs, normalized query, scoring rubric version, `data_version`, and `profile_hash`.
+
+Reuse policy:
+
+- Before search, load `indexes/event-search-index.json` if its `data_version` matches. Rebuild it if missing or stale.
+- If a completed run exists for the same `query_key`, reuse its `recommendations.json` and `recommendations.html` unless the user asks for a fresh run.
+- If candidate retrieval matches a prior `candidate_hash`, reuse existing batch rankings whose `batch_hash` still matches.
+- If only the preference profile changed, reuse the raw event search index but recompute candidate scores, batch rankings, and ensemble output.
+- If event data or this skill changed, invalidate candidate, batch, and ensemble caches by changing `data_version`.
+- Always record cache hits/misses in `run-manifest.json`.
+
 ## Preference Profile
 
 Preference data is private user context, not public repo data. Do not commit a user's personal preference file unless they explicitly ask.
@@ -69,6 +118,8 @@ Expected profile shape:
 
 Explicit user instructions override stored preferences. Use saved/clicked events as weak positive signals and dismissed events as weak negative signals.
 
+Store reusable preference profiles in `.cache/nytw26-event-recommender/profiles/`. When a user clicks, saves, dismisses, or marks attendance, update the local profile and record the update in the next run manifest. Never silently publish behavioral data.
+
 ## Workflow
 
 ### 1. Parse the request
@@ -77,7 +128,23 @@ Extract query terms, roles, tracks, hard constraints, soft preferences, schedule
 
 Verify date coverage before ranking. This repo currently targets 2026-06-01 through 2026-06-07.
 
-### 2. General search to about 100 candidates
+Normalize the parsed request into `query.json` and compute `query_key`.
+
+### 2. Load or build reusable search index
+
+Create or reuse `.cache/nytw26-event-recommender/indexes/event-search-index.json`.
+
+The index should contain enough precomputed fields to make repeated recommendations cheap:
+
+- Event ID.
+- Normalized title, host, location, tracks, inferred categories, keywords, and description tokens.
+- Data-quality flags.
+- Date/time/location fields.
+- Source-backed track labels separated from derived fields.
+
+If the index is reused, record the cache hit in `run-manifest.json`. If rebuilt, record the old/new `data_version`.
+
+### 3. General search to about 100 candidates
 
 Run a broad retrieval pass across all events. Use hard filters first, then rank remaining events by:
 
@@ -90,7 +157,9 @@ Run a broad retrieval pass across all events. Use hard filters first, then rank 
 
 Keep roughly 100 candidates. If hard filters leave fewer than 100 eligible candidates, use all eligible candidates. Preserve score components so the final output can explain why each event matched.
 
-### 3. Rank in batches of 10
+Write the result to `candidates.json`. If an existing completed run has the same `query_key`, reuse its final outputs instead of recomputing.
+
+### 4. Rank in batches of 10
 
 Split the candidates into batches of 10.
 
@@ -105,6 +174,8 @@ Each batch judge must return:
 - Caveats
 - Map pin priority
 
+Write every batch input and ranking output under `runs/<run-id>/batches/`. Reuse a prior batch ranking when its `batch_hash` still matches; otherwise rerank the batch.
+
 Batch scoring axes:
 
 | Axis | Weight |
@@ -115,7 +186,7 @@ Batch scoring axes:
 | Schedule/location fit | 15 |
 | Diversity value | 10 |
 
-### 4. Ensemble reassembly
+### 5. Ensemble reassembly
 
 Combine batch outputs with:
 
@@ -132,13 +203,15 @@ Then run a diversity pass:
 - Avoid near-duplicate formats when a varied list better serves the query.
 - Preserve very high-scoring must-attend events.
 
-### 5. Generate outputs
+Write the fused output to `ensemble.json`.
+
+### 6. Generate outputs
 
 Produce three outputs:
 
 1. Plain-text summary for chat.
-2. `recommendations.json` with full ranked data and score components.
-3. `recommendations.html` with a map-left/events-right layout.
+2. `runs/<run-id>/recommendations.json` with full ranked data and score components.
+3. `runs/<run-id>/recommendations.html` with a map-left/events-right layout.
 
 The HTML page must use:
 
@@ -165,6 +238,14 @@ Do not invent latitude/longitude. If coordinates are absent, show location text 
   "query": "",
   "generated_at": "",
   "assumptions": [],
+  "cache": {
+    "run_id": "",
+    "query_key": "",
+    "data_version": "",
+    "profile_hash": "",
+    "cache_hits": [],
+    "cache_misses": []
+  },
   "date_range_checked": {"start": "2026-06-01", "end": "2026-06-07"},
   "candidate_count": 0,
   "ranking_method": "broad-retrieval-batch-ranking-ensemble",
@@ -191,6 +272,9 @@ Do not invent latitude/longitude. If coordinates are absent, show location text 
 
 ## Acceptance Criteria
 
+- `.cache/nytw26-event-recommender/` contains the run trace: query, candidates, batch rankings, ensemble, final JSON, and final HTML.
+- Repeated identical query/profile/data runs reuse cached final outputs unless the user asks for a fresh run.
+- Stale caches are invalidated by `data_version`, `query_key`, `candidate_hash`, `batch_hash`, or `profile_hash`.
 - The final list is ranked and every recommendation includes an event URL.
 - Reasons cite actual event fields: tracks, title, host, location, keywords, or description.
 - Preference use is explicit: state which stored preferences affected the ranking.
@@ -208,4 +292,4 @@ Do not invent latitude/longitude. If coordinates are absent, show location text 
 - **Too few candidates:** use all eligible candidates and explain the hard filters.
 - **Preference conflict:** explicit current query wins.
 - **User asks for private profile storage in repo:** ask for confirmation before writing personal data to the public repository.
-
+- **Cache conflict or corrupt JSON:** ignore the corrupt cache file, rebuild the affected stage, and record the rebuild reason in `run-manifest.json`.
