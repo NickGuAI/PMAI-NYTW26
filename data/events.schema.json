@@ -65,6 +65,22 @@
       "type": "string",
       "enum": ["direct_fetch", "tavily_fallback", "unavailable"]
     },
+    "description_source_url": {
+      "type": ["string", "null"],
+      "format": "uri"
+    },
+    "description_fetch_error": {
+      "type": ["string", "null"]
+    },
+    "description_fallback_attempted": {
+      "type": "boolean"
+    },
+    "description_fallback_source": {
+      "type": ["string", "null"]
+    },
+    "description_fallback_error": {
+      "type": ["string", "null"]
+    },
     "keywords": {
       "type": "array",
       "items": {
@@ -78,4 +94,3 @@
   },
   "additionalProperties": true
 }
-

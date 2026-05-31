@@ -1,0 +1,27 @@
+{
+  "source": "https://www.tech-week.com/calendar/nyc",
+  "date_range": {
+    "start": "2026-06-01",
+    "end": "2026-06-07"
+  },
+  "source_checked_at": "2026-05-31T02:34:42.961Z",
+  "calendar_total_reported": 1605,
+  "events_in_target_range": 1602,
+  "per_page": 48,
+  "track_counts": {
+    "AI + Infra": 47,
+    "Hackathons": 31,
+    "Fintech": 26,
+    "Students": 20,
+    "Engineers": 51,
+    "Founders": 118,
+    "GTM": 25,
+    "Investors": 44
+  },
+  "direct_fetch_descriptions": 1426,
+  "unavailable_descriptions": 176,
+  "description_failures_path": "data/description-failures.json",
+  "tavily_fallback_attempted": 12,
+  "tavily_fallback_recovered": 0,
+  "tavily_fallback_error": "Tavily extract is unavailable in this runtime: usage limit exceeded (status 432)."
+}
