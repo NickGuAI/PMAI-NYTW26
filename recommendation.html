@@ -25,7 +25,6 @@
       --bg: var(--washi-white);
       --bg-raised: var(--aged-paper);
       --surface-card: var(--washi-white);
-      --surface-stone-gradient: linear-gradient(165deg, #FAF8F5 0%, #E8E4DC 100%);
       --fg: var(--sumi-black);
       --fg-muted: var(--brushed-gray);
       --fg-subtle: var(--diluted-ink);
@@ -36,8 +35,9 @@
       --font-primary: 'Cormorant Garamond', 'Hiragino Mincho Pro', 'Yu Mincho', 'Times New Roman', serif;
       --font-body: 'Source Sans 3', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', sans-serif;
       --font-mono: 'JetBrains Mono', 'SF Mono', Menlo, monospace;
-      --shadow-rest: 0 2px 4px rgba(28, 28, 28, 0.02), 0 12px 40px rgba(28, 28, 28, 0.03);
-      --shadow-float: 0 8px 32px rgba(28, 28, 28, 0.06);
+      --shadow-rest: 0 1px 1px rgba(28, 28, 28, 0.04), 0 8px 18px rgba(28, 28, 28, 0.06), 0 28px 70px rgba(28, 28, 28, 0.08);
+      --shadow-panel: 0 1px 2px rgba(28, 28, 28, 0.05), 0 18px 42px rgba(28, 28, 28, 0.08);
+      --shadow-float: 0 2px 4px rgba(28, 28, 28, 0.06), 0 14px 34px rgba(28, 28, 28, 0.10), 0 36px 90px rgba(28, 28, 28, 0.12);
       --ease-gentle: cubic-bezier(0.23, 1, 0.32, 1);
     }
 
@@ -55,17 +55,6 @@
       font-weight: 400;
       -webkit-font-smoothing: antialiased;
       overflow-x: hidden;
-    }
-
-    body::before {
-      content: "";
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      opacity: 0.018;
-      background-image: radial-gradient(circle at 1px 1px, var(--sumi-black) 1px, transparent 0);
-      background-size: 20px 20px;
-      z-index: 0;
     }
 
     a { color: var(--sumi-black); text-decoration-thickness: 1px; text-underline-offset: 4px; }
@@ -105,7 +94,7 @@
       background: rgba(250, 248, 245, 0.94);
       border: 1px solid var(--border-hair);
       border-radius: 4px 20px 4px 20px;
-      box-shadow: var(--shadow-rest);
+      box-shadow: var(--shadow-panel);
     }
 
     .brand-card {
@@ -279,7 +268,7 @@
 
     .stat {
       padding: 18px 20px;
-      background: var(--surface-stone-gradient);
+      background: var(--surface-card);
     }
 
     .stat .value {
