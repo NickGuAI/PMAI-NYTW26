@@ -76,6 +76,8 @@ docs/
 skills/
   nytw26-event-query/
     SKILL.md                # agent instructions for querying this repo
+  nytw26-event-recommender/
+    SKILL.md                # personalized ranking, ensemble, and map-page guidance
 ```
 
 ## How An Agent Should Use This
@@ -90,6 +92,7 @@ Example prompts:
 - "Build me a June 4 evening plan near downtown Manhattan."
 - "Find founder/investor breakfasts where the host looks relevant to AI startups."
 - "Give me three GTM events and explain why each one matches a B2B founder."
+- "Create a personalized ranked page for AI infra and founder events, with a map on the left and event cards on the right."
 
 Expected answer shape:
 
@@ -128,3 +131,12 @@ For each event:
 ## PMAI Context
 
 Pioneering Minds AI is using this index as a community utility for New York Tech Week 2026 and as source material for a June 1 newsletter. The repo should stay useful as a standalone public artifact: future readers should not need private PMAI context to query the events.
+
+## Recommendation Layer
+
+The repo now includes a recommendation design memo and a recommender skill:
+
+- `docs/recommendation-algorithm.md`
+- `skills/nytw26-event-recommender/SKILL.md`
+
+The recommendation flow is broad retrieval to roughly 100 candidates, 10-event batch ranking, ensemble reassembly, and a ranked HTML result page with a New York map on the left and event recommendations on the right. Personal preference profiles should stay local/private unless a user explicitly asks to publish them.
