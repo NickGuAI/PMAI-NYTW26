@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "PMAI New York Tech Week 2026 Event",
+  "type": "object",
+  "required": [
+    "id",
+    "title",
+    "event_url",
+    "date",
+    "start_time",
+    "timezone",
+    "host",
+    "location",
+    "tracks",
+    "description",
+    "description_source",
+    "keywords",
+    "source_checked_at"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "description": "Stable local event ID."
+    },
+    "title": {
+      "type": "string"
+    },
+    "event_url": {
+      "type": "string",
+      "format": "uri"
+    },
+    "external_url": {
+      "type": ["string", "null"],
+      "format": "uri"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "start_time": {
+      "type": "string"
+    },
+    "end_time": {
+      "type": ["string", "null"]
+    },
+    "timezone": {
+      "type": "string"
+    },
+    "host": {
+      "type": "string"
+    },
+    "location": {
+      "type": "string"
+    },
+    "tracks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "description": {
+      "type": "string"
+    },
+    "description_source": {
+      "type": "string",
+      "enum": ["direct_fetch", "tavily_fallback", "unavailable"]
+    },
+    "keywords": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source_checked_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": true
+}
+
